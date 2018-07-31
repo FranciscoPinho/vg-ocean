@@ -1,5 +1,5 @@
 import pandas as pd
-import wikipedia_list_scraping as wiki
+import db_insertion_utils as db_utils
 
 def scrape_ps4_games():
     """Scrapes PS4 games info from wikipedia lists"""
@@ -55,15 +55,15 @@ def scrape_ps4_games():
                     tempList.append(dateEU[count][8:18])
                 else:
                     tempList.append(dateEU[count])
-            newGameId = wiki.insertGame(tempList) #function returns database id of last inserted game
-            wiki.insertGamePlatform(newGameId,1)
+            newGameId = db_utils.insertGame(tempList) #function returns database id of last inserted game
+            db_utils.insertGamePlatform(newGameId,1)
             GenreIDs = []
-            GenreIDs = wiki.insertGenres(genres[count])
-            wiki.insertGameGenres(newGameId,GenreIDs)
+            GenreIDs = db_utils.insertGenres(genres[count])
+            db_utils.insertGameGenres(newGameId,GenreIDs)
 
 def main():
     """Entry Point"""
-    wiki.connectDatabase()
+    db_utils.connectDatabase()
     scrape_ps4_games()
    
 if __name__ == '__main__':

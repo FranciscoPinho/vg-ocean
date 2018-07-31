@@ -5,7 +5,7 @@ def connectDatabase():
     """Create database connection"""
     global db
     db = pymysql.connect(host='localhost', user='root', password='',
-                         db='vg_dapi', cursorclass=pymysql.cursors.DictCursor,charset='utf8mb4')
+                         db='ocean', cursorclass=pymysql.cursors.DictCursor,charset='utf8mb4')
 
 def insertGenres(genres):    
     """Insert genres into the database"""
@@ -57,33 +57,33 @@ def insertGenres(genres):
     return idList
 
 
-def insertGame(game_details_list):
+def insertGame(game_title):
     """Insert a game into the database"""
     try:
         with db.cursor() as cursor:
             # Create a new record
-            sql = "INSERT INTO `game` (`name`, `publishers`, `developers`,`dateUS`,`dateJP`,`dateEU`) VALUES (%s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, game_details_list)
+            sql = "INSERT INTO `game` (`title`) VALUES (%s)"
+            cursor.execute(sql, game_title)
             db.commit()
             return cursor.lastrowid
     except pymysql.err.IntegrityError:
         cursor.close()
         with db.cursor() as cursor:
             sql = "SELECT `id` FROM `game` WHERE `name`=%s"
-            cursor.execute(sql,game_details_list[0])
+            cursor.execute(sql,game_title)
             result = cursor.fetchone()
-            #print("Integrity: Tried to insert duplicate row - Already exists at ID " + str(result['id']))
+            print("Integrity: Tried to insert duplicate row - Already exists at ID " + str(result['id']))
             return result['id']
     except pymysql.err.InternalError as e:
         print(str(e))
 
-def insertGamePlatform(gameId,platformId):
+def insertGamePlatform(gamePlatformList):
     """Insert gameplatform object into database"""
     try:
         with db.cursor() as cursor:
             # Create a new record
-            sql = "INSERT INTO `gameplatform` (`platformID`,`gameID`) VALUES (%s, %s)"
-            cursor.execute(sql, [platformId,gameId])
+            sql = "INSERT INTO `gameplatform` (`platformID`,`gameID`, `release_US`, `release_EU`, `release_JP`) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(sql, gamePlatformList)
             db.commit()
     except pymysql.err.IntegrityError as e:
         print(str(e))
