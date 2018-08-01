@@ -199,6 +199,7 @@ DROP TABLE IF EXISTS `platform`;
 CREATE TABLE IF NOT EXISTS `platform` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `short` varchar(20) CHARACTER SET latin1 NOT NULL,
   `family` tinytext CHARACTER SET latin1 NOT NULL,
   `released` date NOT NULL,
   PRIMARY KEY (`id`),
@@ -209,8 +210,10 @@ CREATE TABLE IF NOT EXISTS `platform` (
 -- Extraindo dados da tabela `platform`
 --
 
-INSERT INTO `platform` (`id`, `name`, `family`, `released`) VALUES
-(1, 'Nintendo Entertainment System', 'Nintendo', '1983-07-15');
+INSERT INTO `platform` (`id`, `name`,`short`, `family`, `released`) VALUES
+(1, 'Nintendo Entertainment System','NES','Nintendo', '1983-07-15');
+INSERT INTO `platform` (`id`, `name`,`short`, `family`, `released`) VALUES
+(1, 'Sega Genesis/Mega Drive','GEN/MD','Sega', '1988-10-29');
 
 -- --------------------------------------------------------
 
@@ -227,6 +230,38 @@ CREATE TABLE IF NOT EXISTS `publisher` (
   UNIQUE KEY `name_2` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `credits`
+--
+
+DROP TABLE IF EXISTS `credits`;
+CREATE TABLE IF NOT EXISTS `credits` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `artistID` int(11) NOT NULL,
+  `gameID` int(11) NOT NULL,
+  `role` varchar(255) CHARACTER SET latin1 NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `artists`
+--
+
+DROP TABLE IF EXISTS `artist`;
+CREATE TABLE IF NOT EXISTS `artist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `bio` TEXT,
+  `pic_uri` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
 --
 -- Indexes for dumped tables
 --
@@ -239,6 +274,13 @@ ALTER TABLE `game` ADD FULLTEXT KEY `title_match` (`title`,`alt_title`);
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Limitadores para a tabela `credits`
+--
+ALTER TABLE `credits`
+  ADD CONSTRAINT `credits_artist_fk` FOREIGN KEY (`artistID`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `credits_game_fk` FOREIGN KEY (`gameID`) REFERENCES `game` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `gamedeveloper`

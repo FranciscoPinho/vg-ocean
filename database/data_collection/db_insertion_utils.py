@@ -10,7 +10,6 @@ def connectDatabase():
 def insertGenres(genres):    
     """Insert genres into the database"""
     idList = []
-    currentId = 0
     if(type(genres) is float):
         return
     allGenres=genres.split(',')
@@ -69,10 +68,10 @@ def insertGame(game_title):
     except pymysql.err.IntegrityError:
         cursor.close()
         with db.cursor() as cursor:
-            sql = "SELECT `id` FROM `game` WHERE `name`=%s"
+            sql = "SELECT `id` FROM `game` WHERE `title`=%s"
             cursor.execute(sql,game_title)
             result = cursor.fetchone()
-            print("Integrity: Tried to insert duplicate row - Already exists at ID " + str(result['id']))
+            print("Integrity: Tried to insert duplicate game - "+game_title+" - Already exists at ID " + str(result['id']))
             return result['id']
     except pymysql.err.InternalError as e:
         print(str(e))
@@ -107,3 +106,11 @@ def insertGameGenres(gameId,genreIDs):
                 print(str(e))
             cursor.close()
 
+def cleanupGamesFromPlatform(platformID):
+    """Delete all the games from a certain platform"""
+    with db.cursor() as cursor:
+        # Create a new record
+        sql = "DELETE FROM game WHERE EXISTS (SELECT gameID FROM gameplatform WHERE platformID=%s)"
+        cursor.execute(sql, platformID)
+        db.commit()
+    
