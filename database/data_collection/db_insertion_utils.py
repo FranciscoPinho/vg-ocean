@@ -1,11 +1,86 @@
 """This module scrapes game information from wikipedia lists to compile into a database"""
 import pymysql
+import re
+import gamefaqs
 
 def connectDatabase():
     """Create database connection"""
     global db
     db = pymysql.connect(host='localhost', user='root', password='',
                          db='ocean', cursorclass=pymysql.cursors.DictCursor,charset='utf8mb4')
+
+def insertPublishers(allPublishers):
+    """Insert publishers into database"""
+    idList = []
+    for count in range(0,len(allPublishers)):
+        cleanpubs = allPublishers[count].strip()
+        if(cleanpubs==''):
+            return
+        try:
+            with db.cursor() as cursor:
+                # Create a new record
+                sql = "SELECT `id`,`name` FROM `publisher` WHERE LEVENSHTEIN_RATIO(`name`,%s)>85 AND LEVENSHTEIN(`name`,%s)<4"
+                cursor.execute(sql,(cleanpubs,cleanpubs))
+                result = cursor.fetchone()
+                if(result is not None):
+                     #print('duplicate publisher, tried to insert: '+ cleanpubs +' but already existed '+result['name'])
+                     return  
+            cursor.close()
+            with db.cursor() as cursor:
+                # Create a new record
+                sql = "INSERT INTO `publisher` (`name`) VALUES (%s)"
+                cursor.execute(sql, cleanpubs)
+                db.commit()
+                idList.append(cursor.lastrowid) 
+        except pymysql.err.IntegrityError:
+            cursor.close()
+            with db.cursor() as cursor:
+                sql = "SELECT `id` FROM `publisher` WHERE `name`=%s"
+                cursor.execute(sql, cleanpubs)
+                result = cursor.fetchone()
+                #print("Integrity: Tried to insert duplicate row - Already exists at ID " + str(result['id']))
+                idList.append(result['id'])
+        except pymysql.err.InternalError as e:
+            print(str(e))
+            cursor.close()
+    return idList
+
+
+def insertDevelopers(alldevs):
+    """Insert developers into database"""
+    idList = []
+    for count in range(0,len(alldevs)):
+        cleandevs = alldevs[count].strip()
+        if(cleandevs==''):
+            return
+        try:
+            with db.cursor() as cursor:
+                # Create a new record
+                sql = "SELECT `id`,`name` FROM `developer` WHERE LEVENSHTEIN_RATIO(`name`,%s)>85 AND LEVENSHTEIN(`name`,%s)<4"
+                cursor.execute(sql,(cleandevs,cleandevs))
+                result = cursor.fetchone()
+                if(result is not None):
+                     #print('duplicate developer, tried to insert: '+cleandevs+' but already existed '+result['name'])
+                     return
+            cursor.close()
+            with db.cursor() as cursor:
+                # Create a new record
+                sql = "INSERT INTO `developer` (`name`) VALUES (%s)"
+                cursor.execute(sql, cleandevs)
+                db.commit()
+                idList.append(cursor.lastrowid) 
+        except pymysql.err.IntegrityError:
+            cursor.close()
+            with db.cursor() as cursor:
+                sql = "SELECT `id` FROM `developer` WHERE `name`=%s"
+                cursor.execute(sql, cleandevs)
+                result = cursor.fetchone()
+                #print("Integrity: Tried to insert duplicate row - Already exists at ID " + str(result['id']))
+                idList.append(result['id'])
+        except pymysql.err.InternalError as e:
+            print(str(e))
+            cursor.close()
+    return idList 
 
 def insertGenres(genres):    
     """Insert genres into the database"""
@@ -20,12 +95,8 @@ def insertGenres(genres):
                 sql = "SELECT `id`,`name` FROM `genre` WHERE LEVENSHTEIN_RATIO(`name`,%s)>75 AND LEVENSHTEIN(`name`,%s)<4"
                 cursor.execute(sql,(allGenres[count],allGenres[count]))
                 result = cursor.fetchone()
-                if(result is None):
-                    pass
-                else:
+                if(result is not None):
                     for k, v in result.items():
-                       if(k=="id"):
-                         currentId=v 
                        if(k=="name"):
                         if(v!=allGenres[count]):
                             if(v.find('2D')!=-1 and allGenres[count].find('3D')!=-1):
@@ -34,6 +105,7 @@ def insertGenres(genres):
                                 pass
                             else:
                                 idList.append(v) 
+                                print('Tried inserting genre '+allGenres[count]+ ' but '+v+' already existed')
                                 return
             cursor.close()
             with db.cursor() as cursor:
@@ -106,11 +178,45 @@ def insertGameGenres(gameId,genreIDs):
                 print(str(e))
             cursor.close()
 
+def insertGamePublishers(gameId,pubIDs):
+    """Insert gamepublishers object into database"""
+    if(type(pubIDs) is list):
+        for count in range(0,len(pubIDs)):
+            try:
+                with db.cursor() as cursor:
+                    # Create a new record
+                    sql = "INSERT INTO `gamepublisher` (`publisherID`,`gameID`) VALUES (%s, %s)"
+                    cursor.execute(sql, [pubIDs[count],gameId])
+                    db.commit()
+            except pymysql.err.IntegrityError:
+               pass
+               # print("Integrity: Tried to insert duplicate row")
+            except pymysql.err.InternalError as e:
+                print(str(e))
+            cursor.close()
+
+def insertGameDevelopers(gameId,devIDs):
+    """Insert gamedevelopers object into database"""
+    if(type(devIDs) is list):
+        for count in range(0,len(devIDs)):
+            try:
+                with db.cursor() as cursor:
+                    # Create a new record
+                    sql = "INSERT INTO `gamedeveloper` (`devID`,`gameID`) VALUES (%s, %s)"
+                    cursor.execute(sql, [devIDs[count],gameId])
+                    db.commit()
+            except pymysql.err.IntegrityError:
+               pass
+               # print("Integrity: Tried to insert duplicate row")
+            except pymysql.err.InternalError as e:
+                print(str(e))
+            cursor.close()
+
 def cleanupGamesFromPlatform(platformID):
     """Delete all the games from a certain platform"""
     with db.cursor() as cursor:
         # Create a new record
-        sql = "DELETE FROM game WHERE EXISTS (SELECT gameID FROM gameplatform WHERE platformID=%s)"
+        sql = "DELETE FROM game WHERE EXISTS (SELECT gameID FROM gameplatform WHERE platformID=%s);ALTER TABLE game AUTO_INCREMENT = 1;DELETE FROM publisher;ALTER TABLE publisher AUTO_INCREMENT = 1;DELETE FROM developer;ALTER TABLE developer AUTO_INCREMENT = 1"
         cursor.execute(sql, platformID)
         db.commit()
     

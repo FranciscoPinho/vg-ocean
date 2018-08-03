@@ -1,9 +1,11 @@
 import pandas as pd
 import urllib.request
+import re
+from fuzzywuzzy import fuzz
 import db_insertion_utils as db_utils
 
 
-#TODO insert genres, publishers, developers, credits, find image and famicom list
+#TODO insert genres, credits, find image and famicom list
 #HOW TO GET PAGEID OF A GAME
 #https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch=SEARCHQUERY
 #HOW TO ACCESS GAME PAGE
@@ -19,35 +21,37 @@ def scrape_nes_games():
     publishers = games[games.columns[3]].tolist()
     developers = games[games.columns[4]].tolist()   
     for count in range(2,len(titles)):
-        tempList = []
-        tempList.append(1)
-        tempList.append(db_utils.insertGame(titles[count]))
-        if(type(dateUS[count]) is float):
-            tempList.append("Unreleased")
-        else:
-            tempList.append(dateUS[count])
-        if(type(dateEU[count]) is float):
-            tempList.append("Unreleased")
-        else:
-            tempList.append(dateEU[count])
-        tempList.append("")
-        db_utils.insertGamePlatform(tempList)
+        gameDetails = []
+        gameDetails.append(1)
+        gameDetails.append(db_utils.insertGame(titles[count]))
 
-        #newGameId = db_utils.insertGame(tempList) #function returns database id of last inserted game
-        #
+        if(type(dateUS[count]) is float):
+            gameDetails.append("Unreleased")
+        else:
+            gameDetails.append(dateUS[count])
+        if(type(dateEU[count]) is float):
+            gameDetails.append("Unreleased")
+        else:
+            gameDetails.append(dateEU[count])
+        gameDetails.append("")
+        db_utils.insertGamePlatform(gameDetails)
+
+        if(type(publishers[count]) is not float):
+            cleanPublishers = re.sub('\[.{0,3}\]','',publishers[count])
+            publishersSplit = re.split('\(.{0,7}\)',cleanPublishers)
+            pubIDs = db_utils.insertPublishers(publishersSplit)
+            db_utils.insertGamePublishers(gameDetails[1],pubIDs)
+        if(type(developers[count]) is not float and developers[count]!='???'):
+            devIDs = db_utils.insertDevelopers(developers[count].split(';'))            
+            db_utils.insertGameDevelopers(gameDetails[1],devIDs)
+      
         #GenreIDs = []
         #GenreIDs = db_utils.insertGenres(genres[count])
         #db_utils.insertGameGenres(newGameId,GenreIDs)
+        #if(fuzz.ratio(publishers[count],'Hudson Soft (NA/EU)Mattel (AU)')>70):
 
-        #if(type(publishers[count]) is float):
-        #    tempList.append("Unknown")
-        #else:
-        #    tempList.append(publishers[count])
-        
-        #if(type(developers[count]) is float):
-        #    tempList.append("Unknown")
-        #else:
-        #    tempList.append(developers[count])
+    
+    
 
 def main():
     """Entry Point"""
