@@ -1,11 +1,14 @@
 import pandas as pd
-import urllib.request
 import re
-from fuzzywuzzy import fuzz
 import db_insertion_utils as db_utils
+import scrape_utilities as scrape_utils
+import gamefaqs
+import urllib
+from fuzzywuzzy import fuzz
+from bs4 import BeautifulSoup
 
 
-#TODO insert genres, credits, find image and famicom list
+#TODO arse infobox, check if valid infobox by title,insert genres,description(gamefaqs), credits, find image and famicom list
 #HOW TO GET PAGEID OF A GAME
 #https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch=SEARCHQUERY
 #HOW TO ACCESS GAME PAGE
@@ -21,9 +24,12 @@ def scrape_nes_games():
     publishers = games[games.columns[3]].tolist()
     developers = games[games.columns[4]].tolist()   
     for count in range(2,len(titles)):
+        if(titles[count]==''):
+            return
+        cleanTitle=re.sub('\(.*\)','',titles[count])
         gameDetails = []
         gameDetails.append(1)
-        gameDetails.append(db_utils.insertGame(titles[count]))
+        gameDetails.append(db_utils.insertGame(cleanTitle))
 
         if(type(dateUS[count]) is float):
             gameDetails.append("Unreleased")
@@ -44,15 +50,32 @@ def scrape_nes_games():
         if(type(developers[count]) is not float and developers[count]!='???'):
             devIDs = db_utils.insertDevelopers(developers[count].split(';'))            
             db_utils.insertGameDevelopers(gameDetails[1],devIDs)
-      
+        
+        selectedpageID=scrape_utils.searchPageID(cleanTitle)
+        genreBoxData=scrape_utils.extractGenreAndBoxart(selectedpageID,cleanTitle)
+
+        if(genreBoxData==-1):
+            subtitle=str.strip(re.sub('.*?\:','',cleanTitle))
+            selectedpageID=scrape_utils.searchPageID(subtitle,subtitle=True)
+            genreBoxData=scrape_utils.extractGenreAndBoxart(selectedpageID,subtitle)
+        if(genreBoxData!=-1):
+            print(genreBoxData)
+        
+       
+        #urlwiki = r'https://en.wikipedia.org/?curid='+str(selectedpageID)
+
+        #pagetables = pd.read_html(urlwiki) # Returns list of all tables on page
+        #wikicard = pagetables[0]
+        #content = requests.get(urlwiki)
+        #print(content.text())
+        #soup = BeautifulSoup(requests.get(urlwiki).text(),"lxml")
+        #print(soup.prettify())
+        #return
+        #print(wikicard)
         #GenreIDs = []
         #GenreIDs = db_utils.insertGenres(genres[count])
         #db_utils.insertGameGenres(newGameId,GenreIDs)
-        #if(fuzz.ratio(publishers[count],'Hudson Soft (NA/EU)Mattel (AU)')>70):
-
-    
-    
-
+        #
 def main():
     """Entry Point"""
     db_utils.connectDatabase()

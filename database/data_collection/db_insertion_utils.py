@@ -1,7 +1,5 @@
-"""This module scrapes game information from wikipedia lists to compile into a database"""
+"""This module has functions that allows the conversion of data into vg-ocean database business objects"""
 import pymysql
-import re
-import gamefaqs
 
 def connectDatabase():
     """Create database connection"""
