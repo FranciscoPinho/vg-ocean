@@ -1,14 +1,11 @@
 import pandas as pd
 import re
-import db_insertion_utils as db_utils
-import scrape_utilities as scrape_utils
-import gamefaqs
-import urllib
+import db_utils
+import scrape_utils
 from fuzzywuzzy import fuzz
-from bs4 import BeautifulSoup
 
 
-#TODO arse infobox, check if valid infobox by title,insert genres,description(gamefaqs), credits, find image and famicom list
+#TODO famicom list
 #HOW TO GET PAGEID OF A GAME
 #https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch=SEARCHQUERY
 #HOW TO ACCESS GAME PAGE
@@ -29,7 +26,10 @@ def scrape_nes_games():
         cleanTitle=re.sub('\(.*\)','',titles[count])
         gameDetails = []
         gameDetails.append(1)
-        gameDetails.append(db_utils.insertGame(cleanTitle))
+        newGameID=db_utils.insertGame(cleanTitle)
+        if(newGameID==-1):
+            continue
+        gameDetails.append(newGameID)
 
         if(type(dateUS[count]) is float):
             gameDetails.append("Unreleased")
@@ -52,34 +52,47 @@ def scrape_nes_games():
             db_utils.insertGameDevelopers(gameDetails[1],devIDs)
         
         selectedpageID=scrape_utils.searchPageID(cleanTitle)
-        genreBoxData=scrape_utils.extractGenreAndBoxart(selectedpageID,cleanTitle)
+        infoboxData=scrape_utils.extractInfoboxData(selectedpageID,cleanTitle)
 
-        if(genreBoxData==-1):
+        if(infoboxData==-1):
             subtitle=str.strip(re.sub('.*?\:','',cleanTitle))
             selectedpageID=scrape_utils.searchPageID(subtitle,subtitle=True)
-            genreBoxData=scrape_utils.extractGenreAndBoxart(selectedpageID,subtitle)
-        if(genreBoxData!=-1):
-            print(genreBoxData)
+            infoboxData=scrape_utils.extractInfoboxData(selectedpageID,subtitle)
         
-       
-        #urlwiki = r'https://en.wikipedia.org/?curid='+str(selectedpageID)
+        if(infoboxData!=-1):
+            #print(infoboxData)
+            if('genre' in infoboxData):
+                genreIDs=db_utils.insertGenres(infoboxData['genre'])
+                db_utils.insertGameGenres(gameDetails[1],genreIDs)
+            if('director' in infoboxData):
+                dirIDs=db_utils.insertArtists(infoboxData['director'])
+                db_utils.insertCredits(gameDetails[1],dirIDs,'director')
+            if('producer' in infoboxData):
+                prodIDs=db_utils.insertArtists(infoboxData['producer'])
+                db_utils.insertCredits(gameDetails[1],prodIDs,'producer')
+            if('composer' in infoboxData):
+                comIDs=db_utils.insertArtists(infoboxData['composer'])
+                db_utils.insertCredits(gameDetails[1],comIDs,'composer')
+            if('programmer' in infoboxData):
+                progIDs=db_utils.insertArtists(infoboxData['programmer'])
+                db_utils.insertCredits(gameDetails[1],progIDs,'programmer')
+            if('writer' in infoboxData):
+                wriIDs=db_utils.insertArtists(infoboxData['writer'])
+                db_utils.insertCredits(gameDetails[1],wriIDs,'writer')
+            if('artist' in infoboxData):
+                arIDs=db_utils.insertArtists(infoboxData['artist'])
+                db_utils.insertCredits(gameDetails[1],arIDs,'artist')
+            if('boxart' in infoboxData):
+                db_utils.saveWikiCoverLink(gameDetails[1],infoboxData['boxart'])
+        
+        description=scrape_utils.getGamefaqsDescription(cleanTitle,'NES')
+        if(description!=-1):
+            db_utils.saveDescription(gameDetails[1],description)
 
-        #pagetables = pd.read_html(urlwiki) # Returns list of all tables on page
-        #wikicard = pagetables[0]
-        #content = requests.get(urlwiki)
-        #print(content.text())
-        #soup = BeautifulSoup(requests.get(urlwiki).text(),"lxml")
-        #print(soup.prettify())
-        #return
-        #print(wikicard)
-        #GenreIDs = []
-        #GenreIDs = db_utils.insertGenres(genres[count])
-        #db_utils.insertGameGenres(newGameId,GenreIDs)
-        #
 def main():
     """Entry Point"""
     db_utils.connectDatabase()
-    db_utils.cleanupGamesFromPlatform(1)   #in DB NES has id 1
+    #db_utils.cleanupGamesFromPlatform(1)   #in DB NES has id 1
     scrape_nes_games()
    
 if __name__ == '__main__':

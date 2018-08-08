@@ -98,8 +98,10 @@ CREATE TABLE IF NOT EXISTS `game` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `alt_title` varchar(255) DEFAULT NULL,
+  `alt_title2` varchar(255) DEFAULT NULL,
   `description` text,
   `cover_uri` varchar(255) DEFAULT NULL,
+  `cover_wikipedia_link` varchar(255) DEFAULT NULL,
   `time_to_beat` time DEFAULT NULL,
   `time_to_complete` time DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -198,9 +200,9 @@ CREATE TABLE IF NOT EXISTS `genre` (
 DROP TABLE IF EXISTS `platform`;
 CREATE TABLE IF NOT EXISTS `platform` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET latin1 NOT NULL,
-  `short` varchar(20) CHARACTER SET latin1 NOT NULL,
-  `family` tinytext CHARACTER SET latin1 NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `short` varchar(20) NOT NULL,
+  `family` tinytext NOT NULL,
   `released` date NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
@@ -213,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `platform` (
 INSERT INTO `platform` (`id`, `name`,`short`, `family`, `released`) VALUES
 (1, 'Nintendo Entertainment System','NES','Nintendo', '1983-07-15');
 INSERT INTO `platform` (`id`, `name`,`short`, `family`, `released`) VALUES
-(1, 'Sega Genesis/Mega Drive','GEN/MD','Sega', '1988-10-29');
+(2, 'Sega Genesis/Mega Drive','GEN/MD','Sega', '1988-10-29');
 
 -- --------------------------------------------------------
 
@@ -241,9 +243,12 @@ CREATE TABLE IF NOT EXISTS `credits` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `artistID` int(11) NOT NULL,
   `gameID` int(11) NOT NULL,
-  `role` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `role` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `credits`
+  ADD UNIQUE KEY `uniqueCredit` (`artistID`,`gameID`,`role`) USING BTREE;
 
 
 -- --------------------------------------------------------
@@ -255,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `credits` (
 DROP TABLE IF EXISTS `artist`;
 CREATE TABLE IF NOT EXISTS `artist` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `name` varchar(255) NOT NULL,
   `bio` TEXT,
   `pic_uri` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
