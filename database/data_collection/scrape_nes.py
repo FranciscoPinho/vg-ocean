@@ -27,7 +27,11 @@ def scrape_nes_games():
         gameDetails = []
         gameDetails.append(1)
         newGameID=db_utils.insertGame(cleanTitle)
-        if(newGameID==-1):
+        if(type(newGameID) is list):
+            if(count>311):
+                description=scrape_utils.getGamefaqsDescription(cleanTitle,'NES')
+                if(description!=-1):
+                    db_utils.saveDescription(newGameID[0],description)
             continue
         gameDetails.append(newGameID)
 
