@@ -12,8 +12,9 @@ def insertPublishers(allPublishers):
     idList = []
     for count in range(0,len(allPublishers)):
         cleanpubs = allPublishers[count].strip()
+        cleanpubs = cleanpubs.replace(u'\xa0', '')
         if(cleanpubs==''):
-            return
+            return idList
         try:
             with db.cursor() as cursor:
                 # Create a new record
@@ -22,7 +23,9 @@ def insertPublishers(allPublishers):
                 result = cursor.fetchone()
                 if(result is not None):
                      #print('duplicate publisher, tried to insert: '+ cleanpubs +' but already existed '+result['name'])
-                     return  
+                     idList.append(result['id'])
+                     cursor.close()
+                     continue 
             cursor.close()
             with db.cursor() as cursor:
                 # Create a new record
@@ -49,8 +52,9 @@ def insertDevelopers(alldevs):
     idList = []
     for count in range(0,len(alldevs)):
         cleandevs = alldevs[count].strip()
+        cleandevs = cleandevs.replace(u'\xa0', '')
         if(cleandevs==''):
-            return
+            return idList
         try:
             with db.cursor() as cursor:
                 # Create a new record
@@ -59,7 +63,8 @@ def insertDevelopers(alldevs):
                 result = cursor.fetchone()
                 if(result is not None):
                      #print('duplicate developer, tried to insert: '+cleandevs+' but already existed '+result['name'])
-                     return
+                     idList.append(result['id'])
+                     continue
             cursor.close()
             with db.cursor() as cursor:
                 # Create a new record
@@ -86,7 +91,7 @@ def insertArtists(allartists):
     for count in range(0,len(allartists)):
         cleanartist = allartists[count].strip()
         if(cleanartist==''):
-            return
+            return idList
         try:
             with db.cursor() as cursor:
                 # Create a new record
@@ -95,7 +100,8 @@ def insertArtists(allartists):
                 result = cursor.fetchone()
                 if(result is not None):
                      #print('duplicate developer, tried to insert: '+cleandevs+' but already existed '+result['name'])
-                     return
+                    idList.append(result['id'])
+                    continue
             cursor.close()
             with db.cursor() as cursor:
                 # Create a new record
@@ -130,17 +136,15 @@ def insertGenres(genres):
                 cursor.execute(sql,(genres[count],genres[count]))
                 result = cursor.fetchone()
                 if(result is not None):
-                    for k, v in result.items():
-                       if(k=="name"):
-                        if(v!=genres[count]):
-                            if(v.find('2D')!=-1 and genres[count].find('3D')!=-1):
-                                pass
-                            elif(v.find('3D')!=-1 and genres[count].find('2D')!=-1):
-                                pass
-                            else:
-                                idList.append(v) 
-                                #print('Tried inserting genre '+allGenres[count]+ ' but '+v+' already existed')
-                                return
+                    if(result['name']!=genres[count]):
+                        if(result['name'].find('2D')!=-1 and genres[count].find('3D')!=-1):
+                            pass
+                        elif(result['name'].find('3D')!=-1 and genres[count].find('2D')!=-1):
+                            pass
+                        else:
+                            idList.append(result['id'])
+                            continue
+                            #print('Tried inserting genre '+genres[count]+ ' but '+v+' already existed')
             cursor.close()
             with db.cursor() as cursor:
                 # Create a new record
@@ -263,20 +267,57 @@ def insertGameDevelopers(gameId,devIDs):
                 print(str(e))
             cursor.close()
 
+def customQuery(query):
+    with db.cursor() as cursor:
+        sql = query
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        db.commit();
+        cursor.close()
+        return result
+
 def saveWikiCoverLink(gameId,link):
     with db.cursor() as cursor:
-        sql = "UPDATE `game` SET `cover_wikipedia_link`=%s WHERE `id`=%s"
+        sql = "UPDATE `game` SET `cover_wikipedia_link`=%s WHERE `id`=%s and `cover_wikipedia_link` is NULL"
         cursor.execute(sql, [link,gameId])
         db.commit()
     cursor.close()
 
 def saveDescription(gameId,desc):
     with db.cursor() as cursor:
-        sql = "UPDATE `game` SET `description`=%s WHERE `id`=%s"
+        sql = "UPDATE `game` SET `description`=%s WHERE `id`=%s AND `description` is NULL"
         cursor.execute(sql, [desc,gameId])
         db.commit()
     cursor.close()
-    
+
+def saveInfoboxData(infoboxData,gameID):
+    if('genre' in infoboxData):
+        genreIDs=insertGenres(infoboxData['genre'])
+        insertGameGenres(gameID,genreIDs)
+    if('director' in infoboxData):
+        dirIDs=insertArtists(infoboxData['director'])
+        insertCredits(gameID,dirIDs,'director')
+    if('producer' in infoboxData):
+        prodIDs=insertArtists(infoboxData['producer'])
+        insertCredits(gameID,prodIDs,'producer')
+    if('composer' in infoboxData):
+        comIDs=insertArtists(infoboxData['composer'])
+        insertCredits(gameID,comIDs,'composer')
+    if('programmer' in infoboxData):
+        progIDs=insertArtists(infoboxData['programmer'])
+        insertCredits(gameID,progIDs,'programmer')
+    if('writer' in infoboxData):
+        wriIDs=insertArtists(infoboxData['writer'])
+        insertCredits(gameID,wriIDs,'writer')
+    if('artist' in infoboxData):
+        arIDs=insertArtists(infoboxData['artist'])
+        insertCredits(gameID,arIDs,'artist')
+    if('designer' in infoboxData):
+        deIDs=insertArtists(infoboxData['designer'])
+        insertCredits(gameID,deIDs,'designer')
+    if('boxart' in infoboxData):
+        saveWikiCoverLink(gameID,infoboxData['boxart'])
+
 def cleanupGamesFromPlatform(platformID):
     """Delete all the games from a certain platform"""
     with db.cursor() as cursor:
