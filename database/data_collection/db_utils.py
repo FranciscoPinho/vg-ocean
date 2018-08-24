@@ -1,5 +1,7 @@
 """This module has functions that allows the conversion of data into vg-ocean database business objects"""
 import pymysql
+from fuzzywuzzy import fuzz
+import re
 
 def connectDatabase():
     """Create database connection"""
@@ -127,13 +129,15 @@ def insertGenres(genres):
     idList = []
     if(type(genres) is float or type(genres) is None):
         return
-
     for count in range(0,len(genres)):
+        cleanGenre=genres[count].strip()
+        if(cleanGenre==""):
+            continue
         try:
             with db.cursor() as cursor:
                 # Create a new record
                 sql = "SELECT `id`,`name` FROM `genre` WHERE LEVENSHTEIN_RATIO(`name`,%s)>75 AND LEVENSHTEIN(`name`,%s)<4"
-                cursor.execute(sql,(genres[count],genres[count]))
+                cursor.execute(sql,(cleanGenre,cleanGenre))
                 result = cursor.fetchone()
                 if(result is not None):
                     if(result['name']!=genres[count]):
@@ -149,14 +153,14 @@ def insertGenres(genres):
             with db.cursor() as cursor:
                 # Create a new record
                 sql = "INSERT INTO `genre` (`name`) VALUES (%s)"
-                cursor.execute(sql, genres[count])
+                cursor.execute(sql, cleanGenre)
                 db.commit()
                 idList.append(cursor.lastrowid) 
         except pymysql.err.IntegrityError:
             cursor.close()
             with db.cursor() as cursor:
                 sql = "SELECT `id` FROM `genre` WHERE `name`=%s"
-                cursor.execute(sql, genres[count])
+                cursor.execute(sql, cleanGenre)
                 result = cursor.fetchone()
                # print("Integrity: Tried to insert duplicate row - Already exists at ID " + str(result['id']))
                 idList.append(result['id'])
@@ -185,6 +189,37 @@ def insertGame(game_title):
             return [result['id'],-1]
     except pymysql.err.InternalError as e:
         print(str(e))
+
+def gameExists(game_title):
+    try:
+        with db.cursor() as cursor:
+            sql= "SELECT `id`,`title` FROM `game` WHERE LEVENSHTEIN_RATIO(`title`,%s)>80 AND LEVENSHTEIN(`title`,%s)<4"
+            cursor.execute(sql,(game_title,game_title))
+            results = cursor.fetchall()
+            cursor.close()
+            bestChoice=-1
+            for count in range(0,len(results)):
+                bestScore=0
+                currentRatio=fuzz.ratio(results[count]['title'],game_title)
+                lastDigitsSearch = re.search('(\d{0,2}|I+)', game_title[::-1])
+                lastDigitsTitle = re.search('(\d{0,2}|I+)', results[count]['title'][::-1])
+                if(lastDigitsTitle==None and lastDigitsSearch!=None):
+                    return -1
+                elif(lastDigitsTitle!=None and lastDigitsSearch==None):
+                     return -1
+                elif(lastDigitsTitle==None and lastDigitsSearch==None):
+                    pass
+                elif(lastDigitsSearch.groups()[0]!=lastDigitsTitle.groups()[0]):
+                    return -1
+                if(currentRatio==100):
+                    return results[count]['id']
+                if(currentRatio>bestScore):
+                    bestScore=currentRatio
+                    bestChoice = results[count]['id']
+            return bestChoice
+    except Exception as e:
+        print(str(e))
+        return -1
 
 def insertGamePlatform(gamePlatformList):
     """Insert gameplatform object into database"""
@@ -315,6 +350,9 @@ def saveInfoboxData(infoboxData,gameID):
     if('designer' in infoboxData):
         deIDs=insertArtists(infoboxData['designer'])
         insertCredits(gameID,deIDs,'designer')
+    if('developer' in infoboxData):
+        devIDs = insertDevelopers(infoboxData['developer'])            
+        insertGameDevelopers(gameID,devIDs)
     if('boxart' in infoboxData):
         saveWikiCoverLink(gameID,infoboxData['boxart'])
 

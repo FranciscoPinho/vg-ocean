@@ -4,37 +4,74 @@ from fuzzywuzzy import fuzz
 import requests
 import bs4
 import wptools
-import random
+from itertools import cycle
+from lxml.html import fromstring
+import pandas as pd
 
 #credits are designer programmer composer director artist writer producer
-def getGamefaqsDescription(title,platform,extract_image=False):
-    try:
+def getGamefaqsDescAndImage(title,platform,listpro):
+        proxylist=listpro
+        proxy_pool = cycle(proxylist)
+        if(len(proxylist)==0):
+            print("No proxies found")
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36'
         }
-        #Search for the game
-        proxies = {
-            "http": 'http://88.99.149.188:31288', 
-            "https": 'https://88.99.149.188:31288'
-        }
-        text = requests.get('https://gamefaqs.gamespot.com/search/index.html?game='+title,headers=headers,proxies=proxies).text
-        soup= bs4.BeautifulSoup(text,'lxml')
-        info=soup.find_all("div",{"class":"sr_name"},limit=5)
-        href=re.sub('.*?href=\"|\".*?</div>','',str(info[0]))
-        #Go to game page
-        text = requests.get('https://gamefaqs.gamespot.com'+href,headers=headers,proxies=proxies).text
-        soup= bs4.BeautifulSoup(text,'lxml')
-        titleHTML=soup.find("a",{"href":href})
-        gamefaqsTitle=titleHTML.contents[0]
-        #Check for validity of title
-        if(fuzz.ratio(gamefaqsTitle,title)>75 or title in gamefaqsTitle):
-            descriptionHTML=soup.find("div",{"class":"desc"})
-            return descriptionHTML.contents[0]
-        print("No match, found "+gamefaqsTitle+" but wanted "+title)
+        info=None
+        for i in range(0,len(proxylist)):
+            proxy = next(proxy_pool)
+            proxies={
+                "http": proxy, 
+                "https": proxy
+            }
+            try:
+                text = requests.get('https://gamefaqs.gamespot.com/search/index.html?game='+title,headers=headers,proxies=proxies).text
+                soup= bs4.BeautifulSoup(text,'lxml')
+                info=soup.find_all("div",{"class":"sr_product_name"},limit=100)
+                break
+            except Exception as e:
+                print("Request "+str(i)+" "+str(e))
+                continue
+
+        if(info is None):
+            print("No search results found on gamefaqs")
+            return
+
+        for count in range(0,len(info)):
+            href=re.sub('.*?href=\"|\".*?</div>','',str(info[count]))
+            linkPieces=re.match(r'/'+platform.lower()+r'/',href)
+            if(linkPieces is not None):
+                #Go to game page
+                try:
+                    text = requests.get('https://gamefaqs.gamespot.com'+href,headers=headers,proxies=proxies).text
+                    soup= bs4.BeautifulSoup(text,'lxml')
+                    titleHTML=soup.find("a",{"href":href})
+                    gamefaqsTitle=titleHTML.contents[0]
+                    if(fuzz.ratio(gamefaqsTitle,title)>75 or title in gamefaqsTitle):
+                        descriptionHTML=soup.find("div",{"class":"desc"})
+                        data=dict()
+                        data['desc']=descriptionHTML.contents[0]
+                        info=soup.find("img",{"class":"boxshot"})
+                        data['img']=re.sub('thumb','front',info['src'])
+                        return data
+                    print("No match, found "+gamefaqsTitle+" but wanted "+title)
+                except Exception as e:
+                    print(str(e))
+                    return -1
         return -1
-    except Exception as e:
-        print(str(e))
-        return -1
+    
+
+def findSuitableProxy():
+    url = 'https://free-proxy-list.net/'
+    response = requests.get(url)
+    parser = fromstring(response.text)
+    proxies = set()
+    for i in parser.xpath('//tbody/tr')[:10]:
+        if i.xpath('.//td[7][contains(text(),"yes")]'):
+            #Grabbing IP and corresponding PORT
+            proxy = ":".join([i.xpath('.//td[1]/text()')[0], i.xpath('.//td[2]/text()')[0]])
+            proxies.add(proxy)
+    return proxies
 
 def wikipediaInfoboxScraping(cleanTitle):
     selectedpageID=_searchPageID(cleanTitle)
@@ -115,7 +152,9 @@ def _extractData(infobox,page):
             data['boxart']=page.images()[0]['url']
     except:
         pass
+    
     _extractCleanGenre(infobox,data)
+    _extractCleanDataField('developer',infobox,data)
     _extractCleanDataField('designer',infobox,data)
     _extractCleanDataField('programmer',infobox,data)
     _extractCleanDataField('composer',infobox,data)
@@ -127,14 +166,23 @@ def _extractData(infobox,page):
 
 def _extractCleanDataField(field,infobox,data):
     if(field in infobox):
-        cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\|','',infobox[field])
+        if('cn|date' in infobox[field]):
+            postmatch= re.sub('\{\{.*?\}\}','',infobox[field])
+            cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\|','',postmatch)
+        else:
+            cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\|','',infobox[field])
         splitField = re.split('<.*?>|,',cleanField)
         data[field]=[item for item in splitField if not re.match("'+?",item)]
 
 def _extractCleanGenre(infobox,data):
     if('genre' in infobox):
-        cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame','',infobox['genre'])
-        allGenres = re.split('<.*?>|,',cleanGenres)
+        if('cn|date' in infobox['genre']):
+            postmatch= re.sub('\{\{.*?\}\}','',infobox['genre'])
+            cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame','',postmatch)
+            allGenres = re.split('<.*?>|,|\s',cleanGenres)
+        else:
+            cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame','',infobox['genre'])
+            allGenres = re.split('<.*?>|,',cleanGenres)
         data['genre']=allGenres
         
         
