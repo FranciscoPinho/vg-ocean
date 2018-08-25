@@ -4,4 +4,5 @@ module.exports = function(app) {
       // todoList Routes
   app.route('/hltb/all')
     .get(controller.getHLTBAll)
+
 };
