@@ -1,3 +1,4 @@
+
 # OS X
 .DS_Store*
 Icon?
@@ -27,3 +28,5 @@ coverage
 benchmarks/graphs
 
 .vscode
+
+frontend/package-lock\.json
