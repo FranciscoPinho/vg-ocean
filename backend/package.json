@@ -1,0 +1,22 @@
+{
+  "name": "vgocean-server",
+  "version": "1.0.0",
+  "description": "server for vgocean website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Francisco Pinho",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.3"
+  },
+  "dependencies": {
+    "bottleneck": "^1.16.0",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "howlongtobeat": "^1.0.11",
+    "mysql": "^2.16.0"
+  }
+}
