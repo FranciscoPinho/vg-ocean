@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 25, 2018 at 03:58 PM
+-- Generation Time: Sep 01, 2018 at 08:55 PM
 -- Server version: 8.0.12
 -- PHP Version: 5.6.25
 
@@ -157,6 +157,9 @@ CREATE TABLE `gameplatform` (
   `release_US` text COLLATE utf8mb4_general_ci,
   `release_EU` text COLLATE utf8mb4_general_ci,
   `release_JP` text COLLATE utf8mb4_general_ci,
+  `release_GEN` text COLLATE utf8mb4_general_ci,
+  `cover_platform_link` text COLLATE utf8mb4_general_ci,
+  `cover_platform_uri` text COLLATE utf8mb4_general_ci,
   `steamID` int(11) DEFAULT NULL,
   `steam_score` tinytext COLLATE utf8mb4_general_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -195,7 +198,8 @@ CREATE TABLE `platform` (
   `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `short` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
   `family` tinytext COLLATE utf8mb4_general_ci NOT NULL,
-  `released` date NOT NULL
+  `released` date NOT NULL,
+  `thumb_dim` text COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -304,57 +308,57 @@ ALTER TABLE `publisher`
 -- AUTO_INCREMENT for table `artist`
 --
 ALTER TABLE `artist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1225;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1468;
 --
 -- AUTO_INCREMENT for table `credits`
 --
 ALTER TABLE `credits`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2685;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3133;
 --
 -- AUTO_INCREMENT for table `developer`
 --
 ALTER TABLE `developer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=268;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=379;
 --
 -- AUTO_INCREMENT for table `game`
 --
 ALTER TABLE `game`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4755;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5078;
 --
 -- AUTO_INCREMENT for table `gamedeveloper`
 --
 ALTER TABLE `gamedeveloper`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1173;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1736;
 --
 -- AUTO_INCREMENT for table `gamegenre`
 --
 ALTER TABLE `gamegenre`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1265;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1515;
 --
 -- AUTO_INCREMENT for table `gameplatform`
 --
 ALTER TABLE `gameplatform`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1406;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1759;
 --
 -- AUTO_INCREMENT for table `gamepublisher`
 --
 ALTER TABLE `gamepublisher`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1525;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1853;
 --
 -- AUTO_INCREMENT for table `genre`
 --
 ALTER TABLE `genre`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=859;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1006;
 --
 -- AUTO_INCREMENT for table `platform`
 --
 ALTER TABLE `platform`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `publisher`
 --
 ALTER TABLE `publisher`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=135;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
 --
 -- Constraints for dumped tables
 --

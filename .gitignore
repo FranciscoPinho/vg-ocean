@@ -28,5 +28,6 @@ coverage
 benchmarks/graphs
 
 .vscode
+__pycache__
 
 frontend/package-lock\.json

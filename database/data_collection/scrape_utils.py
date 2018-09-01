@@ -9,8 +9,7 @@ from lxml.html import fromstring
 import pandas as pd
 
 #credits are designer programmer composer director artist writer producer
-def getGamefaqsDescAndImage(title,platform,listpro):
-        proxylist=listpro
+def getGamefaqsDescAndImage(title,platform,proxylist):
         proxy_pool = cycle(proxylist)
         if(len(proxylist)==0):
             print("No proxies found")
@@ -25,13 +24,13 @@ def getGamefaqsDescAndImage(title,platform,listpro):
                 "https": proxy
             }
             try:
-                text = requests.get('https://gamefaqs.gamespot.com/search/index.html?game='+title,headers=headers,proxies=proxies).text
+                text = requests.get('https://gamefaqs.gamespot.com/search/index.html?game='+title,headers=headers,proxies=proxies,timeout=15).text
                 soup= bs4.BeautifulSoup(text,'lxml')
                 info=soup.find_all("div",{"class":"sr_product_name"},limit=100)
                 break
             except Exception as e:
                 print("Request "+str(i)+" "+str(e))
-                continue
+                pass
 
         if(info is None):
             print("No search results found on gamefaqs")
@@ -42,22 +41,29 @@ def getGamefaqsDescAndImage(title,platform,listpro):
             linkPieces=re.match(r'/'+platform.lower()+r'/',href)
             if(linkPieces is not None):
                 #Go to game page
-                try:
-                    text = requests.get('https://gamefaqs.gamespot.com'+href,headers=headers,proxies=proxies).text
-                    soup= bs4.BeautifulSoup(text,'lxml')
-                    titleHTML=soup.find("a",{"href":href})
-                    gamefaqsTitle=titleHTML.contents[0]
-                    if(fuzz.ratio(gamefaqsTitle,title)>75 or title in gamefaqsTitle):
-                        descriptionHTML=soup.find("div",{"class":"desc"})
-                        data=dict()
-                        data['desc']=descriptionHTML.contents[0]
-                        info=soup.find("img",{"class":"boxshot"})
-                        data['img']=re.sub('thumb','front',info['src'])
-                        return data
-                    print("No match, found "+gamefaqsTitle+" but wanted "+title)
-                except Exception as e:
-                    print(str(e))
-                    return -1
+                 for i in range(0,len(proxylist)):
+                    proxy = next(proxy_pool)
+                    proxies={
+                        "http": proxy, 
+                        "https": proxy
+                    }
+                    try:
+                        text = requests.get('https://gamefaqs.gamespot.com'+href,headers=headers,proxies=proxies,timeout=15).text
+                        soup= bs4.BeautifulSoup(text,'lxml')
+                        titleHTML=soup.find("a",{"href":href})
+                        gamefaqsTitle=titleHTML.contents[0]
+                        if(fuzz.ratio(gamefaqsTitle,title)>75 or title in gamefaqsTitle):
+                            descriptionHTML=soup.find("div",{"class":"desc"})
+                            data=dict()
+                            data['desc']=descriptionHTML.contents[0]
+                            info=soup.find("img",{"class":"boxshot"})
+                            data['img']=re.sub('thumb','front',info['src'])
+                            return data
+                        print("No match, found "+gamefaqsTitle+" but wanted "+title)
+                        return -1
+                    except Exception as e:
+                        print(str(e))
+                        pass
         return -1
     
 
@@ -66,7 +72,7 @@ def findSuitableProxy():
     response = requests.get(url)
     parser = fromstring(response.text)
     proxies = set()
-    for i in parser.xpath('//tbody/tr')[:10]:
+    for i in parser.xpath('//tbody/tr')[:20]:
         if i.xpath('.//td[7][contains(text(),"yes")]'):
             #Grabbing IP and corresponding PORT
             proxy = ":".join([i.xpath('.//td[1]/text()')[0], i.xpath('.//td[2]/text()')[0]])
@@ -79,6 +85,8 @@ def wikipediaInfoboxScraping(cleanTitle):
     if(infoboxData==-1):
         subtitle=str.strip(re.sub('.*?\:','',cleanTitle))
         selectedpageID=_searchPageID(subtitle,subtitle=True)
+        if(selectedpageID is None):
+            return
         infoboxData=_extractInfoboxData(selectedpageID,subtitle)
     if(infoboxData!=-1):
         return infoboxData
@@ -91,7 +99,10 @@ def _searchPageID(title,subtitle=False):
         searchResults = requests.get('https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch='+title+' video game')
     searchIndex=0
     bestMatch=0
-    selectedpageID=searchResults.json()['query']['search'][0]['pageid']
+    try:
+        selectedpageID=searchResults.json()['query']['search'][0]['pageid']
+    except:
+        return
     while(searchIndex<8 and searchIndex < len(searchResults.json()['query']['search'])):
         pageID = searchResults.json()['query']['search'][searchIndex]['pageid']
         try:

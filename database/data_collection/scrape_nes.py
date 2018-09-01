@@ -39,6 +39,7 @@ def scrapeNesGames():
         else:
             gameDetails.append(dateEU[count])
         gameDetails.append("")
+        gameDetails.append("")
         db_utils.insertGamePlatform(gameDetails)
 
         if(type(publishers[count]) is not float):
@@ -102,7 +103,7 @@ def scrapeFamicomGames():
             gameDetails.append("Unreleased")
         else:
             gameDetails.append(dateJP[count])
-     
+        gameDetails.append("")
         db_utils.insertGamePlatform(gameDetails)
 
         if(type(publishers[count]) is not float):

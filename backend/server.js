@@ -1,5 +1,4 @@
 var https = require('https');
-var fs = require('fs');
 var cors = require('cors');
 var bodyParser = require('body-parser')
 
