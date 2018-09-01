@@ -28,7 +28,7 @@ class LoginModal extends Component {
 
         return (
             <div id='mod-login'>
-                <Modal dimmer='blurring' open={this.props.openLogin} onClose={this.props.closeAll} size='tiny' trigger={<Button onClick={this.props.show}> Sign in</Button>}>
+                <Modal className="login-modal" id="log-mod-btn" dimmer='blurring' open={this.props.openLogin} onClose={this.props.close} size='tiny' trigger={<a href="#" onClick={this.props.show}>Sign in</a>}>
                     <Header icon='paper plane outline' content='Sign in' />
                     <Modal.Content>
                         <Grid columns={1} padded>

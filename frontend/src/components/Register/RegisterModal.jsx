@@ -26,7 +26,7 @@ class RegisterModal extends Component {
 
         return (
             <div id='mod-register'>
-                <Modal dimmer='blurring' open={this.props.openReg} onClose={this.props.close} size='tiny' trigger={<Button onClick={this.props.show}>Register</Button>}>
+                <Modal dimmer='blurring' open={this.props.openReg} onClose={this.props.close} size='tiny' trigger={<Button style={{display:"none"}}>Register</Button>}>
                     <Header icon='paper plane' content='Sign up' />
                     <Modal.Content>
                         <Grid columns={1} padded>
