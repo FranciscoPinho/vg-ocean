@@ -198,6 +198,7 @@ def gameExists(game_title):
             results = cursor.fetchall()
             cursor.close()
             bestChoice=-1
+            bestTitle= ""
             for count in range(0,len(results)):
                 bestScore=0
                 currentRatio=fuzz.ratio(results[count]['title'],game_title)
@@ -212,10 +213,14 @@ def gameExists(game_title):
                 elif(lastDigitsSearch.groups()[0]!=lastDigitsTitle.groups()[0]):
                     return -1
                 if(currentRatio==100):
+                    print("Found similar : "+results[count]['title']+" for "+game_title)
                     return results[count]['id']
                 if(currentRatio>bestScore):
                     bestScore=currentRatio
                     bestChoice = results[count]['id']
+                    bestTitle= results[count]['title']
+            if(bestChoice!=-1):
+                print("Found similar : "+bestTitle+" for "+game_title)
             return bestChoice
     except Exception as e:
         print(str(e))
@@ -226,7 +231,7 @@ def insertGamePlatform(gamePlatformList):
     try:
         with db.cursor() as cursor:
             # Create a new record
-            sql = "INSERT INTO `gameplatform` (`platformID`,`gameID`, `release_US`, `release_EU`, `release_JP`) VALUES (%s, %s, %s, %s, %s)"
+            sql = "INSERT INTO `gameplatform` (`platformID`,`gameID`, `release_US`, `release_EU`, `release_JP`,`release_GEN`) VALUES (%s, %s, %s, %s, %s,%s)"
             cursor.execute(sql, gamePlatformList)
             db.commit()
     except pymysql.err.IntegrityError as e:
@@ -315,6 +320,13 @@ def saveWikiCoverLink(gameId,link):
     with db.cursor() as cursor:
         sql = "UPDATE `game` SET `cover_wikipedia_link`=%s WHERE `id`=%s and `cover_wikipedia_link` is NULL"
         cursor.execute(sql, [link,gameId])
+        db.commit()
+    cursor.close()
+
+def saveCoverPlatformLink(gameId,platformId,link):
+    with db.cursor() as cursor:
+        sql = "UPDATE `gameplatform` SET `cover_platform_link`=%s WHERE `gameID`=%s and `platformID`=%s and `cover_platform_link` is NULL"
+        cursor.execute(sql, [link,gameId,platformId])
         db.commit()
     cursor.close()
 
