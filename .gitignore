@@ -27,3 +27,4 @@ coverage
 benchmarks/graphs
 
 .vscode
+__pycache__
