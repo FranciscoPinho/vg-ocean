@@ -1,0 +1,89 @@
+.nav {
+  height: 50px;
+  background-color: #4d4d4d;
+  position: relative;
+}
+
+.nav > .nav-header {
+  display: inline;
+}
+
+.nav > .nav-header > .nav-title {
+  display: inline-block;
+  font-size: 22px;
+  float: left;
+  color: #fff;
+  padding: 10px 10px 10px 10px;
+}
+
+.nav > .nav-btn {
+  display: none;
+}
+
+.nav > .nav-links {
+  display: inline;
+  float: left;
+  font-size: 2.5vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.nav > .nav-links > a, .ui.dropdown {
+  display: inline-block;
+  padding: 13px 10px;
+  text-decoration: none;
+  color: #efefef;
+}
+
+.nav > .nav-links > a:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding-bottom: 18px;
+  border-radius: 5%;
+}
+
+.nav > .nav-log-modal {
+    display: inline-block;
+    float: right;
+  }
+
+.nav > #nav-check {
+  display: none;
+}
+
+@media (max-width:700px) {
+  .nav > .nav-btn {
+    display: inline-block;
+  }
+  .nav > .nav-btn > label {
+    display: inline-block;
+    padding: 13px 13px;
+  }
+
+  .nav > .nav-btn > label:active {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  .nav > .nav-links {
+    position: absolute;
+    display: block;
+    width: 100%;
+    background-color: transparent;
+    height: 0px;
+    transition: all 0.3s ease-in;
+    overflow-y: hidden;
+    top: 50px;
+    left: 0px;
+  }
+  .nav > .nav-links > a, .ui.dropdown {
+    display: block;
+    width: 100%;
+    background-color: #4d4d4d;
+    color: #efefef;
+  }
+  .nav > #nav-check:not(:checked) + .nav-links {
+    height: 0px;
+  }
+  .nav > #nav-check:checked + .nav-links {
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+  }
+}
