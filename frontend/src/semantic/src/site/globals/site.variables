@@ -1,0 +1,15 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+@primaryColor   : @mossgreen;
+@secondaryColor : @grey;
+
+/**** from darkest to lightest ****/
+
+@darkpurple     : #3a2449;
+@darkblue       : #372772;
+@blueishgrey    : #747c92;
+@mossgreen      : #94c595;
+@aquagreen      : #a1e8af;
+@grey           : #A0A0A0;
