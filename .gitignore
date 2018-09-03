@@ -16,7 +16,6 @@ Desktop.ini
 
 # npm
 node_modules
-package-lock.json
 *.log
 *.gz
 
@@ -30,4 +29,3 @@ benchmarks/graphs
 .vscode
 __pycache__
 
-frontend/package-lock\.json
