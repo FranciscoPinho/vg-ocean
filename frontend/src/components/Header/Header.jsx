@@ -8,8 +8,10 @@ import {
     Responsive,
     Dropdown
 } from "semantic-ui-react";
-import LoginModal from '../components/Login/LoginModal';
-import RegisterModal from '../components/Register/RegisterModal';
+import LoginModal from '../Login/LoginModal';
+import RegisterModal from '../Register/RegisterModal';
+import { Link } from "react-router-dom";
+
 
 import './Header.css'
 
@@ -21,13 +23,9 @@ class Heading extends Component {
             <div className="nav">
                 <div className="nav-header">
                     <div className="nav-title">
-                        <Image
-                            as='a'
-                            size='mini'
-                            href='http://google.com'
-                            target='_blank'
-                            src="https://react.semantic-ui.com/logo.png"
-                        />
+                        <Link to="/"> 
+                            <Image size='mini' src="https://react.semantic-ui.com/logo.png"/>
+                        </Link> 
                     </div>
                 </div>
                 <div className="nav-btn">
@@ -37,9 +35,10 @@ class Heading extends Component {
                 </div>
                 <input type="checkbox" id="nav-check"/>
                 <div className="nav-links">
-                    <a href="//github.io/jo_geek" target="_blank">My Collection</a>
-                    <a href="http://stackoverflow.com/users/4084003/" target="_blank">Explore</a>
-                    <a href="https://in.linkedin.com/in/jonesvinothjoseph" target="_blank">Add+</a>
+                
+                    <a >My Collection</a>
+                    <a >Explore</a>
+                    <Link to="/add+"> Add+</Link>
                     <Dropdown item text="Create">
                         <Dropdown.Menu inverted>
                             <Dropdown.Item>List</Dropdown.Item>
