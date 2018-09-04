@@ -202,15 +202,15 @@ def gameExists(game_title):
             for count in range(0,len(results)):
                 bestScore=0
                 currentRatio=fuzz.ratio(results[count]['title'],game_title)
-                lastDigitsSearch = re.search('(\d{0,2}|I+)', game_title[::-1])
-                lastDigitsTitle = re.search('(\d{0,2}|I+)', results[count]['title'][::-1])
+                lastDigitsSearch = re.search('I+|\d{0,2}', game_title[::-1])
+                lastDigitsTitle = re.search('I+|\d{0,2}', results[count]['title'][::-1])
                 if(lastDigitsTitle==None and lastDigitsSearch!=None):
                     return -1
                 elif(lastDigitsTitle!=None and lastDigitsSearch==None):
                      return -1
                 elif(lastDigitsTitle==None and lastDigitsSearch==None):
                     pass
-                elif(lastDigitsSearch.groups()[0]!=lastDigitsTitle.groups()[0]):
+                elif(lastDigitsSearch.group()!=lastDigitsTitle.group()):
                     return -1
                 if(currentRatio==100):
                     print("Found similar : "+results[count]['title']+" for "+game_title)
@@ -225,6 +225,39 @@ def gameExists(game_title):
     except Exception as e:
         print(str(e))
         return -1
+
+def gameExistsMultiple(game_title):
+    try:
+        with db.cursor() as cursor:
+            sql= r"SELECT `id`,`title` FROM `game` WHERE `title` LIKE '"+game_title[0]+r"%'"
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            cursor.close()
+            conflicts = []
+            for count in range(0,len(results)):
+                conflict = {}
+                cleanTitle=re.sub('\(.*?\)','',results[count]['title']).strip()
+                currentRatio=fuzz.ratio(cleanTitle,game_title)
+                if(currentRatio>75 or game_title in results[count]['title']):
+                    lastDigitsSearch = re.search('I+|\d{0,2}', game_title[::-1])
+                    lastDigitsTitle = re.search('I+|\d{0,2}', cleanTitle[::-1])
+                    if(lastDigitsTitle==None and lastDigitsSearch!=None):
+                        continue
+                    elif(lastDigitsTitle!=None and lastDigitsSearch==None):
+                        continue
+                    elif(lastDigitsTitle==None and lastDigitsSearch==None):
+                        pass
+                    elif(lastDigitsSearch.group()!=lastDigitsTitle.group()):
+                        continue
+                    conflict['similarity']=currentRatio
+                    conflict['gameid'] = results[count]['id']
+                    conflict['title']= results[count]['title']
+                    conflicts.append(conflict)
+            return conflicts
+    except Exception as e:
+        print(str(e))
+        return -1
+
 
 def insertGamePlatform(gamePlatformList):
     """Insert gameplatform object into database"""
@@ -325,7 +358,7 @@ def saveWikiCoverLink(gameId,link):
 
 def saveCoverPlatformLink(gameId,platformId,link):
     with db.cursor() as cursor:
-        sql = "UPDATE `gameplatform` SET `cover_platform_link`=%s WHERE `gameID`=%s and `platformID`=%s and `cover_platform_link` is NULL"
+        sql = "UPDATE `gameplatform` SET `cover_platform_link`=%s WHERE `gameID`=%s and `platformID`=%s"
         cursor.execute(sql, [link,gameId,platformId])
         db.commit()
     cursor.close()
@@ -337,7 +370,7 @@ def saveDescription(gameId,desc):
         db.commit()
     cursor.close()
 
-def saveInfoboxData(infoboxData,gameID):
+def saveInfoboxData(infoboxData,gameID,platformID=None):
     if('genre' in infoboxData):
         genreIDs=insertGenres(infoboxData['genre'])
         insertGameGenres(gameID,genreIDs)
@@ -367,6 +400,8 @@ def saveInfoboxData(infoboxData,gameID):
         insertGameDevelopers(gameID,devIDs)
     if('boxart' in infoboxData):
         saveWikiCoverLink(gameID,infoboxData['boxart'])
+        if platformID is not None:
+            saveCoverPlatformLink(gameID,platformID,infoboxData['boxart'])
 
 def cleanupGamesFromPlatform(platformID):
     """Delete all the games from a certain platform"""

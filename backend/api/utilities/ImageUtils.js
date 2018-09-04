@@ -9,7 +9,7 @@ let connection = mysql.createConnection({
     database : 'ocean'
   });
 
-exports.downloadImageFromGame = async (game,path,awaitDownload) => {
+exports.downloadImageFromGame = async (game,path,awaitDownload,platformID) => {
         console.log(game)
         let filename=path+'cover.'+game.cover_platform_link.split('.').pop()
         
@@ -26,6 +26,7 @@ exports.downloadImageFromGame = async (game,path,awaitDownload) => {
         else res = executeDownload(options,awaitDownload)
         if(game.cover_platform_link===game.cover_wikipedia_link && res===0)
             connection.query("UPDATE game SET cover_uri=? WHERE game.id=?",[filename,game.id])
+        connection.query("UPDATE gameplatform SET cover_platform_uri=? WHERE gameID=? AND platformID=?",[filename,game.id,platformID])
 }
 
 exports.thumbAllSubdirectories = async(consolepath,width,height) => {
@@ -48,6 +49,7 @@ exports.thumbAllSubdirectories = async(consolepath,width,height) => {
         });
     })
 }
+
 
 exports.thumbImage = async(path,width,height) => {
     fs.readdir(path,(err,files)=>{

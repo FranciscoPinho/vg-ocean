@@ -92,7 +92,7 @@ def wikipediaInfoboxScraping(cleanTitle):
         return infoboxData
 
 def _searchPageID(title,subtitle=False):
-    lastDigitsTitle = re.search('(\d{0,2}|I+)', title[::-1])
+    lastDigitsTitle = re.search('I+|\d{0,2}', title[::-1])
     if(lastDigitsTitle!=None and not str.isdigit(title)):
         searchResults = requests.get('https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch='+title)
     else:
@@ -114,14 +114,14 @@ def _searchPageID(title,subtitle=False):
                 else:
                     localMatch=fuzz.ratio(searchTitle.strip(),title)
                 
-                lastDigitsSearch = re.search('(\d{0,2}|I+)', searchTitle[::-1])
+                lastDigitsSearch = re.search('I+|\d{0,2}', searchTitle[::-1])
                 if(lastDigitsTitle==None and lastDigitsSearch!=None):
                     localMatch=localMatch-30
                 elif(lastDigitsTitle!=None and lastDigitsSearch==None):
                     localMatch=localMatch-30
                 elif(lastDigitsTitle==None and lastDigitsSearch==None):
                     pass
-                elif(lastDigitsSearch.groups()[0]!=lastDigitsTitle.groups()[0]):
+                elif(lastDigitsSearch.group()!=lastDigitsTitle.group()):
                     localMatch=localMatch-30
 
                 #print("SCORE",localMatch,"FOR",title,"AND SEARCH RESULT",searchTitle)
@@ -195,5 +195,3 @@ def _extractCleanGenre(infobox,data):
             cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame','',infobox['genre'])
             allGenres = re.split('<.*?>|,',cleanGenres)
         data['genre']=allGenres
-        
-        

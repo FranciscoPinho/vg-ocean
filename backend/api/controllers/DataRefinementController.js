@@ -73,7 +73,6 @@ exports.createThumbsFromImages = async (req,res) => {
     })
 }
 
-
 exports.reThumbImageFromGameID = async(req,res) => {
     try{
         let plat = determinePlatformFromParam(req.params.platformID)
@@ -105,7 +104,7 @@ exports.redownloadImageFromGameID = async(req,res) => {
                     return res.status(500).send('Directory for gameID '+gameID+' not found')
                 else {
                     await imageUtils.deleteFilesFromDir(directory)
-                    await imageUtils.downloadImageFromGame(results[0],directory,true)
+                    await imageUtils.downloadImageFromGame(results[0],directory,true,req.params.platformID)
                     await imageUtils.thumbImage(directory,55,80)
                     return res.status(200).send('success')
                 }
@@ -129,7 +128,7 @@ exports.downloadAllImages = (req,res) => {
             return res.status(500).send('Error connecting to database.');
         for(let i=0, arrsize=results.length; i<arrsize;i++){
             let directory = __dirname+'/images/'+plat+'/'+results[i].id+'/'
-            limiter.schedule(imageUtils.downloadImageFromGame,results[i],directory)
+            limiter.schedule(imageUtils.downloadImageFromGame,results[i],directory,req.params.platformID)
         }
      })
 
