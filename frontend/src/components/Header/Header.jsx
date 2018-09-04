@@ -24,8 +24,11 @@ class Heading extends Component {
                 <div className="nav-header">
                     <div className="nav-title">
                         <Link to="/"> 
-                            <Image size='mini' src="https://react.semantic-ui.com/logo.png"/>
+                            <Image size='mini' src="http://www.jmkxyy.com/ocean-waves-icon/ocean-waves-icon-4.jpg"/>
                         </Link> 
+                    </div>
+                    <div id="page-title-div">
+                         <Link to="/" id="page-title">VGOcean</Link>
                     </div>
                 </div>
                 <div className="nav-btn">
@@ -35,7 +38,6 @@ class Heading extends Component {
                 </div>
                 <input type="checkbox" id="nav-check"/>
                 <div className="nav-links">
-                
                     <a >My Collection</a>
                     <a >Explore</a>
                     <Link to="/add+"> Add+</Link>

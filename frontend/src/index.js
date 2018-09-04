@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import Heading from './components/Header/Header'; 
 import Addplus from './components/Addplus/Addplus'
 import store from './Store';
+import './components/Common.css'
 
 import registerServiceWorker from './registerServiceWorker';
 ReactDOM.render(<Provider store={store}>
