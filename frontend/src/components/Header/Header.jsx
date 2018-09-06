@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import {
-    Container,
     Icon,
     Image,
-    Menu,
-    Sidebar,
-    Responsive,
     Dropdown
 } from "semantic-ui-react";
 import LoginModal from '../Login/LoginModal';
@@ -47,8 +43,8 @@ class Heading extends Component {
                             <Dropdown.Item>Article</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <a href="https://codepen.io/jo_Geek/" target="_blank">Premium</a>
-                    <a href="https://jsfiddle.net/user/jo_Geek/" target="_blank">Feedback</a>
+                    <a href="www.google.com" target="_blank">Premium</a>
+                    <a href="www.google.com" target="_blank">Feedback</a>
                 </div>
                 <div className="nav-log-modal">
                     <LoginModal/>
