@@ -24,7 +24,7 @@ class Heading extends Component {
                 <div className="nav-header">
                     <div className="nav-title">
                         <Link to="/"> 
-                            <Image size='mini' src="http://www.jmkxyy.com/ocean-waves-icon/ocean-waves-icon-4.jpg"/>
+                            <Image size='mini' src="https://cdn3.iconfinder.com/data/icons/game-development-4/64/Game_Evaluation-512.png"/>
                         </Link> 
                     </div>
                     <div id="page-title-div">

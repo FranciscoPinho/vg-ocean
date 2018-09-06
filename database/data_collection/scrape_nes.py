@@ -146,7 +146,7 @@ def main():
     db_utils.connectDatabase()
     #db_utils.cleanupGamesFromPlatform(1)   #in DB NES has id 1
     #scrapeNesGames()
-    findMissingData()
+    #findMissingData()
     #scrapeFamicomGames()
    
 if __name__ == '__main__':

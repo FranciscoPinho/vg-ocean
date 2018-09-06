@@ -6,7 +6,13 @@ let Bottleneck = require("bottleneck")
 let limiter = new Bottleneck(100, 900, null, Bottleneck.strategy.LEAK, false)
 let imageUtils=require('../utilities/ImageUtils')
 let fs = require('fs')
-
+/*
+Doing a console's download of images(SNES as example)
+http://localhost:3001/images/download/4
+http://localhost:3001/images/download/general/4 -- modern consoles only --
+http://localhost:3001/images/thumbs/4 
+http://localhost:3001/images/thumbs/general/4 -- modern consoles only --
+*/
 let connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -73,6 +79,19 @@ exports.createThumbsFromImages = async (req,res) => {
     })
 }
 
+exports.createThumbsFromImagesGeneral = async (req,res) => {
+    let path=__dirname+'/images/general/'
+    connection.query('SELECT thumb_dim FROM platform WHERE id=?',[req.params.platformID], async (err,results) => {
+        if(err)
+            return res.status(500).send('Error connecting to database.');
+        let dims = results[0].thumb_dim.split('x')
+        let width = parseInt(dims[0])
+        let height = parseInt(dims[1])
+        await imageUtils.thumbAllSubdirectories(path,width,height)
+        return res.status(200).send('success')
+    })
+}
+
 exports.reThumbImageFromGameID = async(req,res) => {
     try{
         let plat = determinePlatformFromParam(req.params.platformID)
@@ -104,7 +123,7 @@ exports.redownloadImageFromGameID = async(req,res) => {
                     return res.status(500).send('Directory for gameID '+gameID+' not found')
                 else {
                     await imageUtils.deleteFilesFromDir(directory)
-                    await imageUtils.downloadImageFromGame(results[0],directory,true,req.params.platformID)
+                    await imageUtils.downloadPlatformImageFromGame(results[0],directory,true,req.params.platformID,plat)
                     await imageUtils.thumbImage(directory,55,80)
                     return res.status(200).send('success')
                 }
@@ -117,21 +136,33 @@ exports.redownloadImageFromGameID = async(req,res) => {
     
 }
 
-exports.downloadAllImages = (req,res) => {
+exports.downloadAllImagesPlatform = (req,res) => {
 
     let plat = determinePlatformFromParam(req.params.platformID)
     if(plat===-1){
         return res.status(500).send('Invalid platformID');
     }
-    connection.query("SELECT game.id,game.title,game.cover_wikipedia_link,gameplatform.cover_platform_link FROM `gameplatform` LEFT JOIN game on gameplatform.gameID=game.id WHERE platformID=? AND cover_platform_link is not null AND cover_uri is null",[req.params.platformID], (err, results) => {
+    connection.query("SELECT game.id,game.title,game.cover_wikipedia_link,gameplatform.cover_platform_link FROM `gameplatform` LEFT JOIN game on gameplatform.gameID=game.id WHERE platformID=? AND cover_platform_link is not null AND cover_uri is null ORDER BY game.id",[req.params.platformID], (err, results) => {
         if (err) 
             return res.status(500).send('Error connecting to database.');
         for(let i=0, arrsize=results.length; i<arrsize;i++){
             let directory = __dirname+'/images/'+plat+'/'+results[i].id+'/'
-            limiter.schedule(imageUtils.downloadImageFromGame,results[i],directory,req.params.platformID)
+            limiter.schedule(imageUtils.downloadPlatformImageFromGame,results[i],directory,true,req.params.platformID,plat)
         }
      })
 
+     return res.status(200).send("Download successful")
+}
+
+exports.downloadAllImagesGeneral = (req,res) => {
+    connection.query("SELECT game.id,game.title,game.cover_wikipedia_link,gameplatform.cover_platform_link FROM `gameplatform` LEFT JOIN game on gameplatform.gameID=game.id WHERE platformID=? AND cover_platform_link is not null AND cover_uri is null AND cover_platform_uri is not null AND cover_wikipedia_link!=cover_platform_link ORDER BY game.id",[req.params.platformID], (err, results) => {
+        if (err) 
+            return res.status(500).send('Error connecting to database.');
+        for(let i=0, arrsize=results.length; i<arrsize;i++){
+            let directory = __dirname+'/images/general/'+results[i].id+'/'
+            limiter.schedule(imageUtils.downloadGeneralImageFromGame,results[i],directory,true)
+        }
+     })
      return res.status(200).send("Download successful")
 }
 
@@ -143,6 +174,10 @@ determinePlatformFromParam = platID => {
             return "genmd"
         case "3":
             return "sms"
+        case "4":
+            return "snes"
+        //case "5":
+         //   return "ps1"
         default:
             return -1
     }

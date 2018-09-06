@@ -229,7 +229,7 @@ def gameExists(game_title):
 def gameExistsMultiple(game_title):
     try:
         with db.cursor() as cursor:
-            sql= r"SELECT `id`,`title` FROM `game` WHERE `title` LIKE '"+game_title[0]+r"%'"
+            sql= r"SELECT `id`,`title`,(SELECT JSON_ARRAYAGG(platform.short) FROM platform LEFT JOIN gameplatform on platform.id=gameplatform.platformID WHERE gameID=game.id) as 'platforms' FROM `game` WHERE `title` LIKE '"+game_title[0]+r"%'"
             cursor.execute(sql)
             results = cursor.fetchall()
             cursor.close()
@@ -252,6 +252,7 @@ def gameExistsMultiple(game_title):
                     conflict['similarity']=currentRatio
                     conflict['gameid'] = results[count]['id']
                     conflict['title']= results[count]['title']
+                    conflict['platforms']= results[count]['platforms']
                     conflicts.append(conflict)
             return conflicts
     except Exception as e:
@@ -395,9 +396,9 @@ def saveInfoboxData(infoboxData,gameID,platformID=None):
     if('designer' in infoboxData):
         deIDs=insertArtists(infoboxData['designer'])
         insertCredits(gameID,deIDs,'designer')
-    if('developer' in infoboxData):
-        devIDs = insertDevelopers(infoboxData['developer'])            
-        insertGameDevelopers(gameID,devIDs)
+    #if('developer' in infoboxData):
+    #    devIDs = insertDevelopers(infoboxData['developer'])            
+    #    insertGameDevelopers(gameID,devIDs)
     if('boxart' in infoboxData):
         saveWikiCoverLink(gameID,infoboxData['boxart'])
         if platformID is not None:
