@@ -3,7 +3,8 @@ import Heading from '../Header/Header'
 import Beaten from '../../icons/beaten.png'
 import Unfinished from '../../icons/unfinished.png'
 import Completed from '../../icons/completed.png'
-import {Grid,Table,Menu,Segment,Image} from 'semantic-ui-react'
+import Thumbnail from '../../assets/cover_thumb.png'
+import {Grid,Table,Menu,Segment,Image,Radio} from 'semantic-ui-react'
 import './Addplus.css'
 
 class Addplus extends Component {
@@ -27,7 +28,6 @@ class Addplus extends Component {
         }
         return menu
     }
-
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
     render() {
         return (
@@ -47,66 +47,31 @@ class Addplus extends Component {
                                     <Image src={Beaten}></Image>
                                     <Image src={Unfinished}></Image>
                 </Segment>     
-                <Table celled selectable attached unstackable id="table-games" >
+                <Table celled attached unstackable id="table-games" >
                     <Table.Header >
-                    <Table.Row>
-                        <Table.HeaderCell className="table-games-header">Add</Table.HeaderCell>
-                        <Table.HeaderCell className="table-games-header">Title</Table.HeaderCell>
-                        <Table.HeaderCell className="table-games-header">Type</Table.HeaderCell>
-                        <Table.HeaderCell className="table-games-header">Playtime</Table.HeaderCell>
-                        <Table.HeaderCell className="table-games-header">Rating</Table.HeaderCell>
-                    </Table.Row>
+                        <Table.Row>
+                            <Table.HeaderCell className="table-games-header">Add</Table.HeaderCell>
+                            <Table.HeaderCell className="table-games-header">Title</Table.HeaderCell>
+                            <Table.HeaderCell className="table-games-header">Type</Table.HeaderCell>
+                            <Table.HeaderCell className="table-games-header">Playtime</Table.HeaderCell>
+                            <Table.HeaderCell className="table-games-header">Rating</Table.HeaderCell>
+                        </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                    
-                    <Table.Row>
-                        <Table.Cell>Super Mario Bros 1</Table.Cell>
-                        <Table.Cell className="table-icons-cell">
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                        </Table.Cell>
-                        <Table.Cell>None</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                        <Table.Cell>Super Mario Bros 2</Table.Cell>
-                        <Table.Cell className="table-icons-cell">
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                        </Table.Cell>
-                        <Table.Cell>Requires call</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                        <Table.Cell>Super Mario Bros 3</Table.Cell>
-                        <Table.Cell className="table-icons-cell">
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                        </Table.Cell>
-                        <Table.Cell>None</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                        <Table.Cell>Super Mario Bros 4</Table.Cell>
-                        <Table.Cell className="table-icons-cell">
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                            <Image src={Completed}></Image>
-                            <Image src={Beaten}></Image>
-                            <Image src={Unfinished}></Image>
-                        </Table.Cell>
-                        <Table.Cell>None</Table.Cell>
-                    </Table.Row>
+                        <Table.Row>
+                            <Table.Cell style={{display:"inline-flex",verticalAlign:"middle"}}><Radio></Radio><Image src={Thumbnail}></Image></Table.Cell>
+                            <Table.Cell>Super Mario Bros 1</Table.Cell>
+                            <Table.Cell className="table-icons-cell">
+                                <Image src={Completed}></Image>
+                                <Image src={Beaten}></Image>
+                                <Image src={Unfinished}></Image>
+                                <Image src={Completed}></Image>
+                                <Image src={Beaten}></Image>
+                                <Image src={Unfinished}></Image>
+                            </Table.Cell>
+                            <Table.Cell>None</Table.Cell>
+                            <Table.Cell></Table.Cell>
+                        </Table.Row>
                     </Table.Body>
                 </Table>
             </Grid.Column>
