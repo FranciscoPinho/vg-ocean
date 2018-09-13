@@ -1,4 +1,4 @@
-p {
+#forgotpassword{
   text-align: right;
 }
 
@@ -14,29 +14,5 @@ p {
   }
   .ui.very.relaxed.grid.container {
     width: calc( 500px + 5rem) !important;
-  }
-}
-
-a[href^="#"] {
-  display: inline-block;
-  padding: 13px 10px;
-  text-decoration: none;
-  color: #efefef;
-  font-size: 2.5vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-a[href^="#"]:hover {
-  background-color: rgba(0, 0, 0, 0.3);
-  padding-bottom: 18px;
-  border-radius: 5%;
-}
-
-@media (max-width:700px) {
-  a[href^="#"] {
-    display: block;
-    width: 100%;
-    background-color: #4d4d4d;
-    color: #efefef;
   }
 }
