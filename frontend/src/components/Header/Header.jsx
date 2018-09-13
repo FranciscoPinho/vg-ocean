@@ -7,6 +7,7 @@ import {
 import LoginModal from '../Login/LoginModal';
 import RegisterModal from '../Register/RegisterModal';
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 
 import './Header.css'
@@ -20,11 +21,8 @@ class Heading extends Component {
                 <div className="nav-header">
                     <div className="nav-title">
                         <Link to="/"> 
-                            <Image size='mini' src="http://www.jmkxyy.com/ocean-waves-icon/ocean-waves-icon-4.jpg"/>
+                            <Image src={logo} centered/>
                         </Link> 
-                    </div>
-                    <div id="page-title-div">
-                         <Link to="/" id="page-title">VGOcean</Link>
                     </div>
                 </div>
                 <div className="nav-btn">

@@ -3,11 +3,6 @@
   src: url("../../fonts/Sabo-Regular.otf") format("opentype");
 }
 
-#page-title-div{
-  display: inline-block;
-  vertical-align: middle;
-  padding-right: 2%;
-}
 #page-title{
   font-size: 2em;
   font-family: Sabo;
