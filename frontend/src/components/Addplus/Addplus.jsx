@@ -3,7 +3,7 @@ import Heading from '../Header/Header'
 import Beaten from '../../icons/beaten.png'
 import Unfinished from '../../icons/unfinished.png'
 import Completed from '../../icons/completed.png'
-import {Grid,Icon,Table,Menu,Segment,Image,Sidebar, Container,Divider} from 'semantic-ui-react'
+import {Grid,Table,Menu,Segment,Image} from 'semantic-ui-react'
 import './Addplus.css'
 
 class Addplus extends Component {
@@ -18,9 +18,14 @@ class Addplus extends Component {
     }
     createMenuItems = (consolelist) => {
         let menu = []
-       // for(k,v in consolelist){
-       //     menu.push(<Menu.Header><h3 className="sidebar-header">{k}</h3></Menu.Header>)
-       // }
+        for(let k in consolelist){
+            console.log(k)
+            menu.push(<Menu.Header><h3 className="sidebar-header">{k}</h3></Menu.Header>)
+            for(let c in consolelist[k]){
+                menu.push(<Menu.Item className="sidebar-item" name={consolelist[k][c]} active={this.state.activeItem === consolelist[k][c]} onClick={this.handleItemClick}></Menu.Item>)
+            }
+        }
+        return menu
     }
 
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
@@ -31,25 +36,7 @@ class Addplus extends Component {
             <Grid columns={3} stackable style={{padding:"0",margin:"0"}}>
                 <Grid.Column width={3} style={{padding:"0"}} only="computer large screen">
                 <Menu pointing secondary vertical className="full-height sidebar-ocean">
-
-                        <Menu.Header>
-                            <h3 className="sidebar-header">Nintendo</h3>
-                        </Menu.Header>
-                        <Menu.Item className="sidebar-item" name='NES' active={this.state.activeItem === 'NES'} onClick={this.handleItemClick}>
-                        </Menu.Item>
-                        <Menu.Item className="sidebar-item" name='Super Nintendo' active={this.state.activeItem === 'Super Nintendo'} onClick={this.handleItemClick}>
-                        </Menu.Item>
-                        <Menu.Item className="sidebar-item" name='Game Boy' active={this.state.activeItem === 'Game Boy'} onClick={this.handleItemClick}>
-                        </Menu.Item>
-                        <Menu.Header>
-                            <h3 className="sidebar-header">Sega</h3>
-                        </Menu.Header>
-                        <Menu.Item className="sidebar-item" name='Master System' active={this.state.activeItem === 'Master System'} onClick={this.handleItemClick}>
-                        </Menu.Item>
-                        <Menu.Item className="sidebar-item" name='Genesis/Mega Drive' active={this.state.activeItem === 'Genesis/Mega Drive'} onClick={this.handleItemClick}>
-                        </Menu.Item>
-                        <Menu.Item className="sidebar-item" name='Sega Saturn' active={this.state.activeItem === 'Sega Saturn'} onClick={this.handleItemClick}>
-                        </Menu.Item>
+                    {this.createMenuItems(this.consoles)}
                 </Menu>
                 </Grid.Column>
             

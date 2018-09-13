@@ -1,16 +1,13 @@
 import React, { Component } from "react";
 import {
-    Container,
     Icon,
     Image,
-    Menu,
-    Sidebar,
-    Responsive,
     Dropdown
 } from "semantic-ui-react";
 import LoginModal from '../Login/LoginModal';
 import RegisterModal from '../Register/RegisterModal';
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 
 import './Header.css'
@@ -24,11 +21,8 @@ class Heading extends Component {
                 <div className="nav-header">
                     <div className="nav-title">
                         <Link to="/"> 
-                            <Image size='mini' src="https://cdn3.iconfinder.com/data/icons/game-development-4/64/Game_Evaluation-512.png"/>
+                            <Image src={logo} centered/>
                         </Link> 
-                    </div>
-                    <div id="page-title-div">
-                         <Link to="/" id="page-title">VGOcean</Link>
                     </div>
                 </div>
                 <div className="nav-btn">
@@ -38,8 +32,8 @@ class Heading extends Component {
                 </div>
                 <input type="checkbox" id="nav-check"/>
                 <div className="nav-links">
-                    <a >My Collection</a>
-                    <a >Explore</a>
+                    <Link to="/feedback">My Collection</Link>
+                    <Link to="/feedback">Explore</Link>
                     <Link to="/add+"> Add+</Link>
                     <Dropdown item text="Create">
                         <Dropdown.Menu inverted>
@@ -48,7 +42,7 @@ class Heading extends Component {
                         </Dropdown.Menu>
                     </Dropdown>
                     <Link to="/add+1"> Premium</Link>
-                    <a href="https://jsfiddle.net/user/jo_Geek/" target="_blank">Feedback</a>
+                    <Link to="/feedback">Feedback</Link>
                 </div>
                 <div className="nav-log-modal">
                     <LoginModal/>
