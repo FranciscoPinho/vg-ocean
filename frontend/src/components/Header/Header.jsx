@@ -47,7 +47,7 @@ class Heading extends Component {
                             <Dropdown.Item>Article</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <a href="https://codepen.io/jo_Geek/" target="_blank">Premium</a>
+                    <Link to="/add+1"> Premium</Link>
                     <a href="https://jsfiddle.net/user/jo_Geek/" target="_blank">Feedback</a>
                 </div>
                 <div className="nav-log-modal">
