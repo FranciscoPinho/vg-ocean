@@ -14,6 +14,9 @@ export default function reducer(state=initialState, action){
         case "CLOSE_MODALS": {
             return {...state, openReg: false, openLogin: false}
         }
+        default:{
+            
+        }
     }
     return state;
 }

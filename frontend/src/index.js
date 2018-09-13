@@ -4,7 +4,6 @@ import './semantic/dist/semantic.min.css';
 import Home from './components/Home';
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Route, Switch} from "react-router-dom"; 
-import Heading from './components/Header/Header'; 
 import Addplus from './components/Addplus/Addplus'
 import store from './Store';
 import './components/Common.css'

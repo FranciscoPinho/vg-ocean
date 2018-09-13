@@ -72,6 +72,7 @@
     display: block;
     width: 100%;
     background-color: transparent;
+    z-index: 5;
     height: 0px;
     transition: all 0.3s ease-in;
     overflow-y: hidden;
@@ -93,7 +94,7 @@
   }
 }
 
-a[href^="#"] {
+#signin {
   display: inline-block;
   padding: 13px 10px;
   text-decoration: none;
@@ -102,7 +103,7 @@ a[href^="#"] {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-a[href^="#"]:hover {
+#signing:hover {
   background-color: rgba(0, 0, 0, 0.3);
   padding-bottom: 18px;
   border-radius: 5%;
