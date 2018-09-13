@@ -137,7 +137,7 @@ def main():
     """Entry Point"""
     db_utils.connectDatabase()
     #scrapeSmsGames()
-    findMissingData()
+    #findMissingData()
    
 if __name__ == '__main__':
     main()     

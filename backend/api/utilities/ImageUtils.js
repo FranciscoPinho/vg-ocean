@@ -8,11 +8,11 @@ let connection = mysql.createConnection({
     password : '',
     database : 'ocean'
   });
-
-exports.downloadImageFromGame = async (game,path,awaitDownload) => {
+//@TODO WHEN COVER PLATFORM LINK!= COVER LINK save to a general folder the cover link version and to the console path the other
+exports.downloadPlatformImageFromGame = async (game,path,awaitDownload,platformID,plat) => {
         console.log(game)
         let filename=path+'cover.'+game.cover_platform_link.split('.').pop()
-        
+        let cover_uri='/images/'+plat+'/'+game.id+'/cover.'+game.cover_platform_link.split('.').pop()
         if (!fs.existsSync(path))
             fs.mkdirSync(path)
 
@@ -24,8 +24,29 @@ exports.downloadImageFromGame = async (game,path,awaitDownload) => {
         if(awaitDownload)
             res = await executeDownload(options,awaitDownload)
         else res = executeDownload(options,awaitDownload)
-        if(game.cover_platform_link===game.cover_wikipedia_link && res===0)
-            connection.query("UPDATE game SET cover_uri=? WHERE game.id=?",[filename,game.id])
+        if(res==0)
+            if(game.cover_platform_link===game.cover_wikipedia_link)
+                connection.query("UPDATE game SET cover_uri=? WHERE game.id=?",[cover_uri,game.id])
+            connection.query("UPDATE gameplatform SET cover_platform_uri=? WHERE gameID=? AND platformID=?",[cover_uri,game.id,platformID])
+}
+
+exports.downloadGeneralImageFromGame = async (game,path,awaitDownload) => {
+    console.log(game)
+    let filename=path+'cover.'+game.cover_wikipedia_link.split('.').pop()
+    let cover_uri='/images/general/'+game.id+'/cover.'+game.cover_wikipedia_link.split('.').pop()
+    if (!fs.existsSync(path))
+        fs.mkdirSync(path)
+
+    let options = {
+        url: game.cover_wikipedia_link,
+        dest: filename
+    }
+    let res=-1
+    if(awaitDownload)
+        res = await executeDownload(options,awaitDownload)
+    else res = executeDownload(options,awaitDownload)
+    if(res==0)
+        connection.query("UPDATE game SET cover_uri=? WHERE game.id=?",[cover_uri,game.id])
 }
 
 exports.thumbAllSubdirectories = async(consolepath,width,height) => {
@@ -48,6 +69,7 @@ exports.thumbAllSubdirectories = async(consolepath,width,height) => {
         });
     })
 }
+
 
 exports.thumbImage = async(path,width,height) => {
     fs.readdir(path,(err,files)=>{

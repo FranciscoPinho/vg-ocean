@@ -13,6 +13,7 @@ SELECT game.id,title,
 (SELECT JSON_ARRAYAGG(genre.name) FROM genre LEFT JOIN gamegenre on genre.id=gamegenre.genreID WHERE gameID=@gameid) as 'genres',
 (SELECT JSON_ARRAYAGG(publisher.name) FROM publisher LEFT JOIN gamepublisher on publisher.id=gamepublisher.publisherID WHERE gameID=@gameid) as 'publishers',
 (SELECT JSON_ARRAYAGG(developer.name) FROM developer LEFT JOIN gamedeveloper on developer.id=gamedeveloper.devID WHERE gameID=@gameid) as 'developers',
+(SELECT JSON_ARRAYAGG(platform.short) FROM platform LEFT JOIN gameplatform on platform.id=gameplatform.platformID WHERE gameID=game.id) as 'platforms',
 (SELECT JSON_OBJECTAGG(credits.role,artist.name) FROM artist LEFT JOIN credits on artist.id=credits.artistID WHERE gameID=@gameid) as 'credits'
 FROM game
 WHERE game.id=@gameid
@@ -23,9 +24,11 @@ SELECT game.id,title,
 (SELECT JSON_ARRAYAGG(genre.name) FROM genre LEFT JOIN gamegenre on genre.id=gamegenre.genreID WHERE gameID=game.id) as 'genres',
 (SELECT JSON_ARRAYAGG(publisher.name) FROM publisher LEFT JOIN gamepublisher on publisher.id=gamepublisher.publisherID WHERE gameID=game.id) as 'publishers',
 (SELECT JSON_ARRAYAGG(developer.name) FROM developer LEFT JOIN gamedeveloper on developer.id=gamedeveloper.devID WHERE gameID=game.id) as 'developers',
+(SELECT JSON_ARRAYAGG(platform.short) FROM platform LEFT JOIN gameplatform on platform.id=gameplatform.platformID WHERE gameID=game.id) as 'platforms',
 (SELECT JSON_OBJECTAGG(credits.role,artist.name) FROM artist LEFT JOIN credits on artist.id=credits.artistID WHERE gameID=game.id) as 'credits'
 FROM game
 GROUP BY game.id
+ORDER BY game.id DESC
 
 -- select games with list of some useless genres
 SET @toDeleteIDs='288';

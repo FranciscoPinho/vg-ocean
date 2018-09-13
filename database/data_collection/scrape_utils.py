@@ -26,7 +26,12 @@ def getGamefaqsDescAndImage(title,platform,proxylist):
             try:
                 text = requests.get('https://gamefaqs.gamespot.com/search/index.html?game='+title,headers=headers,proxies=proxies,timeout=15).text
                 soup= bs4.BeautifulSoup(text,'lxml')
+                if('503 Service Temporarily Unavailable' in text):
+                    raise Exception('invalid proxy')
                 info=soup.find_all("div",{"class":"sr_product_name"},limit=100)
+                if(info==[]):
+                    print(soup)
+                    continue
                 break
             except Exception as e:
                 print("Request "+str(i)+" "+str(e))
@@ -52,7 +57,7 @@ def getGamefaqsDescAndImage(title,platform,proxylist):
                         soup= bs4.BeautifulSoup(text,'lxml')
                         titleHTML=soup.find("a",{"href":href})
                         gamefaqsTitle=titleHTML.contents[0]
-                        if(fuzz.ratio(gamefaqsTitle,title)>75 or title in gamefaqsTitle):
+                        if(fuzz.ratio(gamefaqsTitle,title)>75 or title in gamefaqsTitle or gamefaqsTitle in title):
                             descriptionHTML=soup.find("div",{"class":"desc"})
                             data=dict()
                             data['desc']=descriptionHTML.contents[0]
@@ -62,7 +67,7 @@ def getGamefaqsDescAndImage(title,platform,proxylist):
                         print("No match, found "+gamefaqsTitle+" but wanted "+title)
                         return -1
                     except Exception as e:
-                        print(str(e))
+                        print("Request "+str(i)+" "+str(e))
                         pass
         return -1
     
@@ -92,7 +97,7 @@ def wikipediaInfoboxScraping(cleanTitle):
         return infoboxData
 
 def _searchPageID(title,subtitle=False):
-    lastDigitsTitle = re.search('(\d{0,2}|I+)', title[::-1])
+    lastDigitsTitle = re.search('I+|\d{0,2}', title[::-1])
     if(lastDigitsTitle!=None and not str.isdigit(title)):
         searchResults = requests.get('https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&srsearch='+title)
     else:
@@ -114,14 +119,14 @@ def _searchPageID(title,subtitle=False):
                 else:
                     localMatch=fuzz.ratio(searchTitle.strip(),title)
                 
-                lastDigitsSearch = re.search('(\d{0,2}|I+)', searchTitle[::-1])
+                lastDigitsSearch = re.search('I+|\d{0,2}', searchTitle[::-1])
                 if(lastDigitsTitle==None and lastDigitsSearch!=None):
                     localMatch=localMatch-30
                 elif(lastDigitsTitle!=None and lastDigitsSearch==None):
                     localMatch=localMatch-30
                 elif(lastDigitsTitle==None and lastDigitsSearch==None):
                     pass
-                elif(lastDigitsSearch.groups()[0]!=lastDigitsTitle.groups()[0]):
+                elif(lastDigitsSearch.group()!=lastDigitsTitle.group()):
                     localMatch=localMatch-30
 
                 #print("SCORE",localMatch,"FOR",title,"AND SEARCH RESULT",searchTitle)
@@ -181,8 +186,8 @@ def _extractCleanDataField(field,infobox,data):
             postmatch= re.sub('\{\{.*?\}\}','',infobox[field])
             cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\|','',postmatch)
         else:
-            cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\|','',infobox[field])
-        splitField = re.split('<.*?>|,',cleanField)
+            cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\||}}','',infobox[field])
+        splitField = re.split('<.*?>|,|*',cleanField)
         data[field]=[item for item in splitField if not re.match("'+?",item)]
 
 def _extractCleanGenre(infobox,data):
@@ -192,8 +197,6 @@ def _extractCleanGenre(infobox,data):
             cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame','',postmatch)
             allGenres = re.split('<.*?>|,|\s',cleanGenres)
         else:
-            cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame','',infobox['genre'])
+            cleanGenres = re.sub('\[\[.*?\||\]\]|\[\[|\sgame|\svideo\sgame|\(|\)','',infobox['genre'])
             allGenres = re.split('<.*?>|,',cleanGenres)
         data['genre']=allGenres
-        
-        
