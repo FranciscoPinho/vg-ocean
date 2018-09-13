@@ -1,16 +1,13 @@
 import React, { Component } from "react";
 import {
-    Container,
     Icon,
     Image,
-    Menu,
-    Sidebar,
-    Responsive,
     Dropdown
 } from "semantic-ui-react";
 import LoginModal from '../Login/LoginModal';
 import RegisterModal from '../Register/RegisterModal';
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 
 import './Header.css'
@@ -24,11 +21,8 @@ class Heading extends Component {
                 <div className="nav-header">
                     <div className="nav-title">
                         <Link to="/"> 
-                            <Image size='mini' src="https://cdn3.iconfinder.com/data/icons/game-development-4/64/Game_Evaluation-512.png"/>
+                            <Image src={logo} centered/>
                         </Link> 
-                    </div>
-                    <div id="page-title-div">
-                         <Link to="/" id="page-title">VGOcean</Link>
                     </div>
                 </div>
                 <div className="nav-btn">
@@ -47,8 +41,8 @@ class Heading extends Component {
                             <Dropdown.Item>Article</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <a href="https://codepen.io/jo_Geek/" target="_blank">Premium</a>
-                    <a href="https://jsfiddle.net/user/jo_Geek/" target="_blank">Feedback</a>
+                    <a href="www.google.com" target="_blank">Premium</a>
+                    <a href="www.google.com" target="_blank">Feedback</a>
                 </div>
                 <div className="nav-log-modal">
                     <LoginModal/>

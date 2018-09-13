@@ -30,7 +30,7 @@ class LoginForm extends Component {
 									iconPosition='left'
 								/>
 							</Form.Field>
-							<p> <small> <a href="https://localhost:3000"> Forgot password? </a></small> </p>
+							<p id="forgotpassword"> <small> <a href="https://localhost:3000"> Forgot password? </a></small> </p>
 							<Form.Field>
 								<Checkbox label='Remember me' />
 							</Form.Field>
