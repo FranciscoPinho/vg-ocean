@@ -36,7 +36,7 @@ class Heading extends Component {
                     <Link to="/feedback">Explore</Link>
                     <Link to="/add+"> Add+</Link>
                     <Dropdown item text="Create">
-                        <Dropdown.Menu inverted>
+                        <Dropdown.Menu>
                             <Dropdown.Item>List</Dropdown.Item>
                             <Dropdown.Item>Article</Dropdown.Item>
                         </Dropdown.Menu>

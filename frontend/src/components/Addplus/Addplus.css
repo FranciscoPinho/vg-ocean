@@ -9,15 +9,21 @@
     width:100%;
     border-radius: 0 !important;
     margin:0 !important;
+    color:#EFEFD9;
+    background:transparent !important;
+    border:none!important;
 }
-.table-icons-cell{
+.table-games-cell{
     display: inline-flex;
+    align-items: center;
 }
 .table-games-header{
     background-color: #747C92 !important;
 }
 .sidebar-ocean{
     margin:0 !important;
+    height:100vh;
+    padding-top:20px;
     background-color: #747C92 !important;
 }
 .sidebar-header{
@@ -29,4 +35,8 @@
 }
 .sidebar-item{
     color:#94C595 !important;
+    font-size: 1.2em;
+}
+.table-game-thumb{
+    padding-left:10px;
 }
