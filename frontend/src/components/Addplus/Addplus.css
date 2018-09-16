@@ -1,12 +1,23 @@
-#table-games{
-    color:#EFEFD9;
-    background-color:transparent;
+/* Grid container */
+#addplus{
+    padding:0;
+    margin:0;
+    min-height: 100vh;
+}
+.table-games{
+    color:#EFEFD9!important;
+    background-color:transparent!important;
     border-radius: 0 !important; 
-    border-color:#747C92;
+    border-color:#747C92!important;
     margin:0 !important;
+}
+.table-games-column{
+    overflow-x:"auto";
 }
 .segment-table{
     width:100%;
+    padding-left:0px !important;
+    padding-right:0px !important;
     border-radius: 0 !important;
     margin:0 !important;
     color:#EFEFD9;
@@ -16,15 +27,24 @@
 .table-games-cell{
     display: inline-flex;
     align-items: center;
+    width:100%;
+}
+.table-icon-container{
+    display: inline-flex !important;
+    width: max-content !important;
 }
 .table-games-header{
     background-color: #747C92 !important;
+    border-radius: 0 !important;
 }
 .sidebar-ocean{
     margin:0 !important;
-    height:100vh;
+    height:100%;
     padding-top:20px;
     background-color: #747C92 !important;
+}
+.sidebar-column{
+    padding:0 !important;
 }
 .sidebar-header{
     text-align:center;
@@ -38,5 +58,35 @@
     font-size: 1.2em;
 }
 .table-game-thumb{
-    padding-left:10px;
+    padding-left:15px;
+    padding-right:15px;
+}
+.ui.search{
+    margin-left: auto;
+}
+.ui.search .prompt{
+    border-radius: 0px!important;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+.ui.vertical.menu{
+    width:11rem;
+}
+@-moz-document url-prefix() {
+    .table-game-thumb{
+        height:70px
+    }
+}
+.additions-segment-group{
+    border-radius:0px !important;
+    border:0 !important;
+}
+.additions-header{
+    border-radius:0px !important;
+    background:transparent !important;
+    color:#EFEFD9;
+}
+.pagination.menu{
+    margin-top:14px !important;
+    justify-content: center;
+    display: flex !important;
 }
