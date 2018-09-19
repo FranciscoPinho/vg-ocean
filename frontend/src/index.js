@@ -6,7 +6,7 @@ import { Provider } from "react-redux"
 import { BrowserRouter as Router, Route, Switch} from "react-router-dom" 
 import Addplus from './components/Addplus/Addplus'
 import store from './Store'
-import './components/Common.css'
+import './components/Common/Common.css'
 import registerServiceWorker from './registerServiceWorker'
 document.title="VGOcean"
 

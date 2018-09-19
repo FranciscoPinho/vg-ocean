@@ -6,8 +6,20 @@ body{
     background-color: transparent
 }
 
-.full-height{
-    min-height: 100% !important;
+.clip-text{
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.overflow-x-scroll{
+  overflow-x:auto;
+}
+.vgocean-icon{
+  margin-right:3px;
+}
+
+.icon-toggled{
+  box-shadow: 2px 2px 1px grey;
 }
 
 /* Mobile */
@@ -20,7 +32,7 @@ body{
     [class*="or lower hidden"] {
       display: none !important;
     }
-  }
+}
   
   /* Tablet / iPad Portrait */
   @media only screen and (min-width: 768px) and (max-width: 991px) {

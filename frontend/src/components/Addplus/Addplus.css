@@ -24,10 +24,13 @@
     background:transparent !important;
     border:none!important;
 }
-.table-games-cell{
+.inline-flex-centered{
     display: inline-flex;
     align-items: center;
-    width:100%;
+}
+
+.ui.fixed.table td, .ui.fixed.table th{
+    overflow:auto !important
 }
 .table-icon-container{
     display: inline-flex !important;
@@ -86,7 +89,27 @@
     color:#EFEFD9;
 }
 .pagination.menu{
+    background-color: #747C92 !important;
     margin-top:14px !important;
+}
+.pagination-container{
+    display: flex;
     justify-content: center;
-    display: flex !important;
+}
+.added-game{
+    display:inline-flex !important;
+    justify-content:space-between;
+    align-items: center;
+    width: 95% !important;
+}
+.mandatory{
+    
+}
+/* mobile and tablet portrait */
+@media only screen and (max-width: 767px),only screen and (min-width: 768px) and (max-width: 991px){
+    .added-game{
+        display:inline-flex !important;
+        justify-content:space-between;
+        width:100% !important;
+      }    
 }
