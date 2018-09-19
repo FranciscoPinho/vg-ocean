@@ -1,8 +1,11 @@
+<<<<<<< HEAD
+=======
 
 # OS X
 .DS_Store*
 ._*
 
+>>>>>>> cf2dd5608cc0ebd82b852e3c83c3623c580274b0
 # Windows
 Thumbs.db
 ehthumbs.db

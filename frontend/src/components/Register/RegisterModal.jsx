@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Checkbox, Form, Grid, Input, Segment, Header, Icon, Modal } from 'semantic-ui-react';
+import { Button, Checkbox, Form, Grid, Input, Segment, Header, Modal } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import {closeAll,openLogin,openRegister} from '../../actions/modalActions';
 

@@ -32,17 +32,17 @@ class Heading extends Component {
                 </div>
                 <input type="checkbox" id="nav-check"/>
                 <div className="nav-links">
-                    <a >My Collection</a>
-                    <a >Explore</a>
+                    <Link to="/feedback">My Collection</Link>
+                    <Link to="/feedback">Explore</Link>
                     <Link to="/add+"> Add+</Link>
                     <Dropdown item text="Create">
-                        <Dropdown.Menu inverted>
+                        <Dropdown.Menu>
                             <Dropdown.Item>List</Dropdown.Item>
                             <Dropdown.Item>Article</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
-                    <a href="www.google.com" target="_blank">Premium</a>
-                    <a href="www.google.com" target="_blank">Feedback</a>
+                    <Link to="/add+1"> Premium</Link>
+                    <Link to="/feedback">Feedback</Link>
                 </div>
                 <div className="nav-log-modal">
                     <LoginModal/>
