@@ -6,7 +6,8 @@ SELECT * FROM `game` WHERE NOT EXISTS (SELECT * from gamegenre WHERE gamegenre.g
 SELECT * FROM `game` WHERE NOT EXISTS (SELECT * from gamegenre WHERE gamegenre.gameID=game.id) AND cover_wikipedia_link is null
 -- find games without genres but with cover art
 SELECT * FROM `game` WHERE NOT EXISTS (SELECT * from gamegenre WHERE gamegenre.gameID=game.id) AND cover_wikipedia_link is not null
-
+-- find games of a certain genre
+SELECT id,title,cover_uri FROM `game` where id in (SELECT gameID FROM gameplatform where platformID=?)
 -- game info with credits
 SET @gameid=64;
 SELECT game.id,title,
