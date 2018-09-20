@@ -7,7 +7,7 @@ import misc_utils
 import time
 
 def scrapeSnesGames():
-    """Scrapes SMS games info from wikipedia lists"""
+    """Scrapes SNES games info from wikipedia lists"""
     global SNES_ID
     global listpro
     listpro = scrape_utils.findSuitableProxy()

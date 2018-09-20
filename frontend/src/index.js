@@ -15,6 +15,7 @@ export var server_url
 if (process.env.NODE_ENV !== 'production') {
     server_url = process.env.REACT_APP_SERVER_BASE_URL;
 }
+else server_url = process.env.REACT_APP_SERVER_BASE_URL_PROD;
 
 ReactDOM.render(<Provider store={store}>
      <Router>

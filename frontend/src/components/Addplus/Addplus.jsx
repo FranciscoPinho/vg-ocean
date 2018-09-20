@@ -1,10 +1,11 @@
 import React, { Component } from "react"
 import Heading from '../Header/Header'
-import {Grid,Table,Menu,Segment,Image,Icon,Container,Search,Loader,Dimmer,Pagination} from 'semantic-ui-react'
+import {Grid,Table,Menu,Segment,Icon,Container,Search,Loader,Dimmer,Pagination,Button,Transition} from 'semantic-ui-react'
 import {debounce} from 'throttle-debounce'
 import axios from 'axios'
 import './Addplus.css'
 import VGOIcons from '../../components/Common/VGOIcons'
+import OverlayTitleCell from './OverlayTitleCell'
 import { server_url } from "../..";
 
 
@@ -12,11 +13,15 @@ class Addplus extends Component {
     state = {
         tableGames:[],
         addedGames:[],
+        windowWidth:0,
+        windowHeight:0,
+        mobileSidebarWidth:200,
         isLoading:false,
         isTableLoading:false,
         activeConsole:null,
         searchQuery:"",
-        lastFetchType:"",
+        lastFetchType:"",   
+        error:true,
         totalPages:0,
         lowerLimit:0,
         upperLimit:30,
@@ -33,6 +38,18 @@ class Addplus extends Component {
 
     componentWillMount(){
         document.title="VGOcean - Add+"
+       
+    }
+    componentDidMount(){
+        this.updateWindowDimensions()
+        window.addEventListener('resize', this.updateWindowDimensions);
+    }
+    componentWillUnmount(){
+        window.removeEventListener('resize', this.updateWindowDimensions);
+    }
+
+    updateWindowDimensions = () =>{
+        this.setState({ windowWidth: window.innerWidth, windowHeight: window.innerHeight });
     }
 
     processImageURL = (game) => {
@@ -42,8 +59,8 @@ class Addplus extends Component {
     }
     
     mobileOrPortraitTablet = () =>{
-        //(max-width: 767px)
-        return window.width<767 || (window.width>768 && window.width<991)
+        const {windowWidth} = this.state
+        return windowWidth<767 || (windowWidth>768 && windowWidth<991)
     }
     addGame = (newgame) => {
         if(!newgame.type && !this.state.futureSelectionsAs)
@@ -97,6 +114,7 @@ class Addplus extends Component {
         }
         if(this.state.isTableLoading)
             return
+        this.closeSidebar()
         this.fetchActiveConsoleGames(consoleobj)
     } 
     
@@ -127,10 +145,12 @@ class Addplus extends Component {
             activePage:activePage
         },()=>{
             if(this.state.lastFetchType==="search")
-            this.fetchSearchResults(this.state.searchQuery)
+                this.fetchSearchResults(this.state.searchQuery)
             if(this.state.lastFetchType==="console")
                 this.fetchActiveConsoleGames(this.state.activeConsole)
+            window.scrollTo(0, 0)
         })
+       
     }
         
     fetchSearchResults = async (searchQuery) => {
@@ -167,11 +187,13 @@ class Addplus extends Component {
             let i = tableGames.indexOf(game)
             tableGames[i]={...tableGames[i],"type":type}
             this.setState({
-                tableGames:tableGames
+                tableGames:tableGames,
+                error:false
             })
         }
         else this.setState({
-            futureSelectionsAs:type
+            futureSelectionsAs:type,
+            error:false
         })
     }
 
@@ -192,7 +214,7 @@ class Addplus extends Component {
     renderSidebar = () =>{
         return (
             <Grid.Column width={3} className="sidebar-column tablet hidden mobile hidden">
-                <Menu pointing secondary vertical className="sidebar-ocean">
+                <Menu pointing secondary vertical className="sidebar-ocean sidebar-ocean-desktop">
                         <div className="sidebar-content">
                             {Object.keys(this.consoles).map((family)=>{
                                 return ( 
@@ -219,35 +241,78 @@ class Addplus extends Component {
                 </Grid.Column>
         )
     }
-
+    renderMobileSidebar = () => {
+        return (
+        <div className="sidenav" style={{width:this.state.mobileSidebarWidth}}>
+             <a class="closebtn" onClick={this.closeSidebar}>&times;</a>
+             <Menu pointing secondary vertical className="sidebar-ocean" style={{marginLeft:0,width:"auto"}}>
+                <div className="sidebar-content">
+                        {Object.keys(this.consoles).map((family)=>{
+                            return ( 
+                                <React.Fragment key={family}>
+                                <Menu.Header><h3 className="sidebar-header">{family}</h3></Menu.Header>
+                                {this.consoles[family].map((consol)=>{
+                                    return (
+                                        <Menu.Item 
+                                        className="sidebar-item"
+                                        key={consol['id']} 
+                                        consoleobj={consol} 
+                                        name={consol['name']} 
+                                        active={this.state.activeConsole ? this.state.activeConsole.name === consol['name']:false} 
+                                        onClick={this.handleConsoleSelection}>
+                                            {consol['name']}
+                                        </Menu.Item>
+                                    )})
+                                }
+                                </React.Fragment>
+                            )
+                        })}
+                    </div>
+            </Menu>
+        </div>
+        )
+    }
+    openSidebar=()=>{
+        this.setState({
+            mobileSidebarWidth:200
+        })
+    }
+    closeSidebar=()=>{
+        this.setState({
+            mobileSidebarWidth:0
+        })
+    }
     renderTableGames = () => {
         let colspan
         this.mobileOrPortraitTablet() ? colspan=2 : colspan=4
         return (
+        <div className="table-games-body">
             <Table celled unstackable fixed className="table-games">
                 <Table.Header >
                     <Table.Row>
-                        <Table.HeaderCell width={8} className="table-games-header">Title</Table.HeaderCell>
-                        <Table.HeaderCell width={colspan===2? 16:8}className="table-games-header">Type <span className="mandatory">(mandatory)</span></Table.HeaderCell>
+                        <Table.HeaderCell width={colspan===2? 10:8} className="table-games-header">Title</Table.HeaderCell>
+                        <Table.HeaderCell width={colspan===2? 6:8}className="table-games-header">Type <span className="mandatory">(mandatory)</span></Table.HeaderCell>
                         <Table.HeaderCell width={2}className="table-games-header mobile hidden" >Playtime</Table.HeaderCell>
                         <Table.HeaderCell width={2}className="table-games-header mobile hidden">Rating</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>
-                <Table.Body>
+               
                     {this.state.tableGames.length===0 ? 
-                    <Table.Row>
-                        <Table.Cell textAlign="center" colSpan={colspan}>
-                            Select a console and/or input search query to look for games!
-                        </Table.Cell>
-                    </Table.Row> 
+                    <Table.Body>
+                        <Table.Row>
+                            <Table.Cell textAlign="center" colSpan={colspan}>
+                                <span className="lightgrey-font">Select a console and/or input search query to look for games!</span>
+                            </Table.Cell>
+                        </Table.Row> 
+                    </Table.Body>
                     :
-                    this.state.tableGames.map((game)=>{
+                    <Transition.Group as={Table.Body} duration={500} animation={colspan===2?"fly up":"fly left"}>
+                    {this.state.tableGames.map((game)=>{
                         let imageURL = this.processImageURL(game)
                         return <Table.Row key={game.id}>
-                                    <Table.Cell width={16} singleLine className="inline-flex-centered overflow-x-scroll" onClick={()=>this.addGame(game)}>
-                                        {imageURL && <Image className="table-game-thumb" src={server_url+imageURL} alt="cover art" />}
-                                        {game.title}
-                                    </Table.Cell>
+
+                                    <OverlayTitleCell imageURL={imageURL} title={game.title} clickHandler={()=>this.addGame(game)}/>
+                       
                                     <Table.Cell width={16} className="overflow-x-scroll">
                                         <Container className="table-icon-container">
                                             <VGOIcons addplusIconClickHandler={this.iconClickHandler} game={game} />
@@ -259,9 +324,14 @@ class Addplus extends Component {
                                         <Table.Cell width={16} className="mobile hidden overflow-x-scroll">
                                     </Table.Cell>
                                 </Table.Row>
+                     
                     })}
-                </Table.Body>
+                    </Transition.Group>
+                    
+                    }
+                  
              </Table>
+            </div>
         )
     }
 
@@ -274,30 +344,48 @@ class Addplus extends Component {
             </React.Fragment>
         )
     }
+
     /*
-    @TODO SIDEBAR FOR MOBILE OR TABLE
+    @TODO flashing mandatory if try to add without selection of icon
     @TODO FIX MOBILE OR TABLET DISPLAY OF THINGS IN GENERAL
     */
     render() {
+        let mobile;
+        this.mobileOrPortraitTablet() ? mobile=true : mobile=false
         return (
         <React.Fragment>
             <Heading/>
             <Grid id="addplus" stackable>
-                {this.renderSidebar()}
+                {!mobile ? this.renderSidebar():this.renderMobileSidebar()}
                
-                <Grid.Column width={10} className="table-games-column">
+                <Grid.Column width={10}>
                 <Dimmer active={this.state.isTableLoading}> 
                     <Loader size="big" />
                 </Dimmer>
-                <Segment className="inline-flex-centered segment-table">
-                            Toggle to mark future selections as:&nbsp;&nbsp;
-                            <VGOIcons className="icons" addplusIconClickHandler={this.iconClickHandler} withpopup />
-                            <Search
-                                showNoResults={false}
-                                loading={this.state.isLoading}
-                                onSearchChange={debounce(1000,true,this.handleSearch)}
-                                value={this.state.searchQuery}
-                            />
+                <Segment className={mobile ? "segment-table lightgrey-font":"inline-flex-centered segment-table lightgrey-font"}>
+                    <div className="inline-flex-centered">
+                        Toggle to mark future selections as:&nbsp;&nbsp;
+                        <VGOIcons className="icons" addplusIconClickHandler={this.iconClickHandler} withpopup />
+                    </div>
+                    {mobile ?
+                    <div className="search-div-mobile">
+                    <Icon onClick={this.openSidebar} className="sidebar-ocean-hamburguer" inverted name='bars' size='large'/>
+                    <Search
+                        style={{textAlign:"center",paddingTop:"5px"}}
+                        showNoResults={false}
+                        loading={this.state.isLoading}
+                        onSearchChange={debounce(1000,true,this.handleSearch)}
+                        value={this.state.searchQuery}
+                    />
+                    </div>
+                    :
+                    <Search
+                        showNoResults={false}
+                        loading={this.state.isLoading}
+                        onSearchChange={debounce(1000,true,this.handleSearch)}
+                        value={this.state.searchQuery}
+                    />
+                    }  
                 </Segment>     
                 {this.renderTableGames()}
                 {this.state.totalPages>1 && 
@@ -313,10 +401,15 @@ class Addplus extends Component {
                 }
             </Grid.Column>
             <Grid.Column width={3}>
+            
+            <Segment raised className="additions-header lightgrey-font">Adding to collection:</Segment>    
             <Segment.Group className="additions-segment-group">
-                <Segment raised className="additions-header">Additions:</Segment>
                 {this.renderAddedGames()}
             </Segment.Group>
+            {this.state.addedGames.length>0 && 
+            <div className="add-all-button-div">
+            <Button>Add all</Button>
+            </div>}
             </Grid.Column>
             </Grid>
         </React.Fragment>

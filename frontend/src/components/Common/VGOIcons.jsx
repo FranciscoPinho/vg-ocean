@@ -8,22 +8,25 @@ import Finished from '../../assets/icons/completed_icon.png'
 import Unplayed from '../../assets/icons/unplayed_icon.png'
 import Playing from '../../assets/icons/playing_icon.png'
 import OnHold from '../../assets/icons/onhold_icon.png'
-import Dropped from '../../assets/icons/ditched_icon2.png'
+import Dropped from '../../assets/icons/ditched_icon1.png'
 
 
 
 
 class VGOIcons extends Component {
     state={
-        toggledIcon:''
+        toggledIcon:""
     }
     
     iconClickHandler = (type,game) => {
+        let newtype=""
+        if(type!==this.state.toggledIcon)
+            newtype=type
         this.setState({
-            toggledIcon:type
+            toggledIcon:newtype
         })
         if(this.props.addplusIconClickHandler){
-            this.props.addplusIconClickHandler(type,game)
+            this.props.addplusIconClickHandler(newtype,game)
         }
     }
 
@@ -58,7 +61,7 @@ class VGOIcons extends Component {
                 <Popup trigger={<Image className={this.state.toggledIcon==='U' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Unplayed} onClick={()=>this.iconClickHandler('U',null)}></Image>} content='Plan to play or unplayed' hideOnScroll />
                 <Popup trigger={<Image className={this.state.toggledIcon==='P' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Playing} onClick={()=>this.iconClickHandler('P',null)}></Image>} content='Currently playing' hideOnScroll />
                 <Popup trigger={<Image className={this.state.toggledIcon==='H' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={OnHold} onClick={()=>this.iconClickHandler('H',null)}></Image>} content='Game is on hold' hideOnScroll />
-                <Popup trigger={<Image className={this.state.toggledIcon==='D' ? "vgocean-icon-last icon-toggled" : "vgocean-icon-last"} src={Dropped} onClick={()=>this.iconClickHandler('D',null)}></Image>} content='Dropped the game, it must suck' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='D' ? "vgocean-icon-last icon-toggled" : "vgocean-icon-last"} src={Dropped} onClick={()=>this.iconClickHandler('D',null)}></Image>} content='Dropped the game because it sucked' hideOnScroll />
              </React.Fragment>
              :
              <React.Fragment>

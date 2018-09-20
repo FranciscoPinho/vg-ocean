@@ -1,11 +1,19 @@
 body{
     background-color: #00102A;
 }
-
+body ::-webkit-scrollbar-track {
+  background: rgba(0,0,0,.5);
+}
+body ::-webkit-scrollbar-thumb {
+  background-color: lightgrey;
+}
+body ::-webkit-scrollbar {
+  height: 2px;
+  width: 2px;
+}
 .transparent{
     background-color: transparent
 }
-
 .clip-text{
   text-overflow:ellipsis;
   white-space:nowrap;
@@ -17,9 +25,8 @@ body{
 .vgocean-icon{
   margin-right:3px;
 }
-
 .icon-toggled{
-  box-shadow: 2px 2px 1px grey;
+  box-shadow: 2px 2px 1px lightgrey;
 }
 
 /* Mobile */
