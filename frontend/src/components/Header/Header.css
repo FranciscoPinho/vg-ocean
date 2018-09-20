@@ -1,13 +1,4 @@
-@font-face {
-  font-family: Sabo;
-  src: url("../../fonts/Sabo-Regular.otf") format("opentype");
-}
-
-#page-title{
-  font-size: 2em;
-  font-family: Sabo;
-  color:#94C595;
-}
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
 
 .nav {
   height: 50px;
@@ -21,8 +12,6 @@
 
 .nav > .nav-header > .nav-title {
   display: inline-block;
-  font-size: 22px;
-  color: #fff;
   vertical-align: middle;
   padding-left:10px;
   padding-right:3px;
@@ -33,13 +22,14 @@
 .nav > .nav-links {
   display: inline;
   font-size: 1.2em;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Montserrat', sans-serif !important;
 }
-.nav > .nav-links > a, .ui.dropdown {
+.nav > .nav-links > a , .content > a{
   display: inline-block;
   padding: 13px 10px;
   text-decoration: none;
-  color: #efefef;
+  text-shadow: 2px 2px rgb(5, 13, 58);
+  color:#e1e1fa;
 }
 .nav > .nav-log-modal {
     display: inline-block;
@@ -48,13 +38,22 @@
 .nav > #nav-check {
   display: none;
 }
+.create-dropdown, #header-dropdown-item > a {
+  text-shadow: 2px 2px rgb(5, 13, 58);
+  color: #e1e1fa;
+  padding: 13px 10px;
+}
+#header-dropdown-item,.menu.transition.visible{
+  background-color: #747C92;
+  border-color: #747C92;
+}
 @media (min-width:769px){
   .nav > .nav-links > a:hover {
     background-color: rgba(0, 0, 0, 0.3);
     padding-bottom: 18px;
+  }
 }
-}
-@media (max-width:768px) {
+@media (max-width:991px) {
   .nav > .nav-btn {
     display: inline-block;
   }
@@ -63,10 +62,10 @@
     padding: 13px 13px;
   }
 
-  .nav > .nav-links > a:hover {
+  .nav > .nav-links > a:hover, .create-dropdown:hover, .content > a:hover {
     background-color: rgb(31, 31, 31);
-    padding-bottom: 18px;
   }
+
   .nav > .nav-links {
     position: absolute;
     display: block;
@@ -79,11 +78,13 @@
     top: 50px;
     left: 0px;
   }
-  .nav > .nav-links > a, .ui.dropdown {
+  .nav > .nav-links > a, .create-dropdown, .item > a, .content > a{
     display: block;
     width: 100%;
     background-color: #4d4d4d;
-    color: #efefef;
+    text-shadow: 2px 2px rgb(5, 13, 58);
+    color: #e1e1fa;
+    border-radius: 0%;
   }
   .nav > #nav-check:not(:checked) + .nav-links {
     height: 0px;
@@ -98,13 +99,51 @@
   display: inline-block;
   padding: 13px 10px;
   text-decoration: none;
-  color: #efefef;
+  text-shadow: 2px 2px rgb(5, 13, 58);;
+  color: #e1e1fa;
   font-size: 1.2em;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 #signin:hover {
   background-color: rgba(0, 0, 0, 0.3);
   padding-bottom: 18px;
   border-radius: 5%;
+}
+
+.create-accordion .title:not(.ui) {
+  padding: .5em 0;
+  font-family: Montserrat,sans-serif !important;
+  background-color: #4d4d4d;
+  font-size: 1.2em;
+  text-decoration: none;
+  text-shadow: 2px 2px rgb(5, 13, 58);
+  color: #e1e1fa !important;
+}
+
+.create-accordion .content {
+  background-color: #4d4d4d;
+}
+
+.create-accordion .content a{
+  color: #e1e1fa;
+  text-shadow: 2px 2px rgb(5, 13, 58);
+  font-size: 1em;
+  padding-left: 45px;
+}
+
+/* for mobile devices */
+@media only screen and (max-width: 767px), only screen and (min-width: 768px) and (max-width: 991px) {
+  .create-dropdown{
+    display: none !important;
+  }
+}
+
+/* large screen devices */
+@media only screen and (min-width: 992px) and (max-width: 1199px), 
+only screen and (min-width: 1200px) and (max-width: 1919px),
+only screen and (min-width: 1920px) {
+  .create-accordion{
+    display: none !important;
+  }
 }
