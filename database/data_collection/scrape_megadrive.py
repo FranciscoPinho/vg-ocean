@@ -3,9 +3,9 @@ import re
 import db_utils
 import scrape_utils
 from fuzzywuzzy import fuzz
-import misc_utils
 import time
-
+#WHEN PORTING THIS CODE PAY ATTENTION TO GEN_ID AND TO THE GAMEFAQS SCRAPING TO HCNAGE TO THE CORRECT CONSOLE
+#DOWNLOAD IMAGES OF MISSING SNES GAMES
 def scrapeGenMDGames():
     """Scrapes GEN/MD games info from wikipedia lists"""
     global GEN_ID
@@ -13,12 +13,12 @@ def scrapeGenMDGames():
     listpro = scrape_utils.findSuitableProxy()
     #listpro=set(['193.178.246.248:8080','27.98.206.187:3128'])
     if(len(listpro)==0):
-        print(listpro)
-        return
+       print(listpro)
+       return
     GEN_ID=2
     url = r'https://en.wikipedia.org/wiki/List_of_Sega_Genesis_games'
     tables = pd.read_html(url) # Returns list of all tables on page
-    games = tables[0]
+    games = tables[1]
     titles = games[games.columns[0]].tolist()
     developers = games[games.columns[1]].tolist()   
     publishers = games[games.columns[2]].tolist()
@@ -28,8 +28,10 @@ def scrapeGenMDGames():
     conflicting_indexes=[]
     counter=20
     for count in range(2,len(titles)):
-        #INITIAL CODE TO VERIFY DATA 
-        #DELETE THE ABOVE CODE TO START FOR REAL LATER
+        if(publishers[count]=="Tec Toy" or publishers[count]=="Tectoy"):
+            continue
+        if(type(dateJP[count]) is float and type(dateEU[count]) is float and type(dateUS[count]) is float):
+            continue
         counter=counter-1
         if(counter==0):
             listpro = scrape_utils.findSuitableProxy()
@@ -47,7 +49,8 @@ def scrapeGenMDGames():
         if(titles[count]==''):
             return   
         print("doing iteration "+str(count)+ " for title "+titles[count])
-        possibleTitles=cleanupTitles(titles[count].split('•'))
+        titleClean=re.sub('(?<=[a-z]|[1-9])(JP|PAL|NA)','',titles[count])
+        possibleTitles=cleanupTitles(re.split('(?<=[a-z]|[1-9])([A-Z])|JP\/EU|NA|EU|JP|EU\/AU|\/|NA\/PAL',titleClean))
         #print(possibleTitles,dateJP[count],dateUS[count],dateEU[count],developers[count],publishers[count])
         newGame=True
         gameDetails = []
@@ -88,11 +91,11 @@ def scrapeGenMDGames():
         if(newGame):
             if(type(publishers[count]) is not float):
                 cleanPublishers = re.sub('\[.{0,3}\]','',publishers[count])
-                publishersSplit = re.split('(?<=[a-z])[A-Z].*|JP\/EU|NA|EU|JP|EU\/AU',cleanPublishers)
+                publishersSplit = re.split('(?<=[a-z])[A-Z].*|JP\/EU|NA|EU|JP|EU\/AU|\/|PAL|NA\/PAL|JP\/PAL|NA\/JP|NA\/EU',cleanPublishers)
                 pubIDs = db_utils.insertPublishers(publishersSplit)
                 db_utils.insertGamePublishers(gameDetails[1],pubIDs)
             if(type(developers[count]) is not float and developers[count]!='???'):
-                devIDs = db_utils.insertDevelopers(developers[count].split(';'))            
+                devIDs = db_utils.insertDevelopers(re.split('(?<=[a-z]|[1-9])[A-Z]',developers[count]))         
                 db_utils.insertGameDevelopers(gameDetails[1],devIDs)
             infobox = scrape_utils.wikipediaInfoboxScraping(possibleTitles[0])
             if(infobox is not None):
@@ -110,10 +113,15 @@ def validDecision(dec):
     return False
 
 def resolveConflicts(conflicting_indexes,titles,developers,publishers,dateJP,dateEU,dateUS):
+    GEN_ID=2
+    print("conflicts nr",len(conflicting_indexes))
     decisions=dict()
     newTitles=dict()
     for i in conflicting_indexes:
-        possibleTitles=cleanupTitles(titles[i].split('•'))
+        if(i in decisions):
+            continue
+        titleClean=re.sub('(?<=[a-z]|[1-9])(JP|PAL|NA)','',titles[i])
+        possibleTitles=cleanupTitles(re.split('(?<=[a-z]|[1-9])([A-Z])|JP\/EU|NA|EU|JP|EU\/AU|\/|NA\/PAL',titleClean))
         conflicts=db_utils.gameExistsMultiple(possibleTitles[0])
         print("DECISION "+str(i)+ " for title "+titles[i])
         print("Considering "+possibleTitles[0])
@@ -126,8 +134,11 @@ def resolveConflicts(conflicting_indexes,titles,developers,publishers,dateJP,dat
             newTitles[i] = input("Input new desired game title:")
             decisions[i]="new"
         print(decisions)
+
     counter=20
     for count in conflicting_indexes:
+        if(count not in decisions):
+            continue
         counter=counter-1
         if(counter==0):
             listpro = scrape_utils.findSuitableProxy()
@@ -138,19 +149,20 @@ def resolveConflicts(conflicting_indexes,titles,developers,publishers,dateJP,dat
             counter=20
         try:
             print("doing iteration "+str(count)+ " for title "+titles[count])
-            possibleTitles=cleanupTitles(titles[count].split('•'))
+            titleClean=re.sub('(?<=[a-z]|[1-9])(JP|PAL|NA)','',titles[count])
+            possibleTitles=cleanupTitles(re.split('(?<=[a-z]|[1-9])([A-Z])|JP\/EU|NA|EU|JP|EU\/AU|\/|NA\/PAL',titleClean))
+            conflicts=db_utils.gameExistsMultiple(possibleTitles[0])
             if(count in newTitles):
                 possibleTitles[0]=newTitles[count]
             #print(possibleTitles,dateJP[count],dateUS[count],dateEU[count],developers[count],publishers[count])
             newGame=True
             gameDetails = []
             gameDetails.append(GEN_ID)
-
             decision=decisions[count]
             if(str(decision)=="new" or str(decision)=="newapp"):
                 print("Creating new game out of conflict")
                 if(str(decision)=="newapp"):
-                    newGameID=db_utils.insertGame(possibleTitles[0]+ " (SNES)")
+                    newGameID=db_utils.insertGame(possibleTitles[0]+ " (GEN/MD)")
                 else:
                     newGameID=db_utils.insertGame(possibleTitles[0])
                 if(type(newGameID) is list):
@@ -160,12 +172,10 @@ def resolveConflicts(conflicting_indexes,titles,developers,publishers,dateJP,dat
             elif(str.isdigit(decision)):
                 print("Merging with "+str(conflicts[int(decision)]))
                 if r')' in conflicts[int(decision)]['title']:
-                    newTitle=re.sub(r')',r'/SNES)',conflicts[int(decision)]['title'])
-                    print(newTitle)
-                    db_utils.customQuery("UPDATE game SET title='"+newTitle+"' WHERE game.id="+conflicts[int(decision)]['gameid'])
+                    newTitle=re.sub('\)','/GEN/MD)',conflicts[int(decision)]['title'])
+                    db_utils.customQuery('UPDATE game SET title="'+newTitle+'" WHERE game.id='+str(conflicts[int(decision)]['gameid']))
                 gameDetails.append(conflicts[int(decision)]['gameid'])
                 newGame=False
-
             if(len(possibleTitles)==2 and possibleTitles[1]!=""):
                 db_utils.customQuery('UPDATE game SET alt_title="'+possibleTitles[1]+'" WHERE id='+str(gameDetails[1])+' AND alt_title is null')
             if(len(possibleTitles)==3 and possibleTitles[2]!=""):
@@ -187,14 +197,18 @@ def resolveConflicts(conflicting_indexes,titles,developers,publishers,dateJP,dat
                 gameDetails.append(dateJP[count])
             gameDetails.append("") #dateGEN
             db_utils.insertGamePlatform(gameDetails)
+        except Exception as e:
+            print(str(e))
+            return
+        try:
             if(newGame):
                 if(type(publishers[count]) is not float):
                     cleanPublishers = re.sub('\[.{0,3}\]','',publishers[count])
-                    publishersSplit = re.split('(?<=[a-z])[A-Z].*|JP\/EU|NA|EU|JP|EU\/AU',cleanPublishers)
+                    publishersSplit = re.split('(?<=[a-z])[A-Z].*|JP\/EU|NA|EU|JP|EU\/AU|\/|PAL|NA\/PAL|JP\/PAL|NA\/JP|NA\/EU',cleanPublishers)
                     pubIDs = db_utils.insertPublishers(publishersSplit)
                     db_utils.insertGamePublishers(gameDetails[1],pubIDs)
                 if(type(developers[count]) is not float and developers[count]!='???'):
-                    devIDs = db_utils.insertDevelopers(developers[count].split(';'))            
+                    devIDs = db_utils.insertDevelopers(re.split('(?<=[a-z]|[1-9])[A-Z]',developers[count]))            
                     db_utils.insertGameDevelopers(gameDetails[1],devIDs)
                 infobox = scrape_utils.wikipediaInfoboxScraping(possibleTitles[0])
                 if(infobox is not None):
@@ -210,7 +224,13 @@ def resolveConflicts(conflicting_indexes,titles,developers,publishers,dateJP,dat
             continue
 
 def cleanupTitles(possibleTitles):
+    finalTitles = []
     for titlecount in range(0,len(possibleTitles)):
+        if(possibleTitles[titlecount] is None):
+            continue
+        if(len(possibleTitles[titlecount])==1 and titlecount<len(possibleTitles)-1 and possibleTitles[titlecount+1] is not None):
+            possibleTitles[titlecount+1]=possibleTitles[titlecount]+possibleTitles[titlecount+1]
+            continue
         if(', The' in possibleTitles[titlecount]):
             cleanTitle=re.sub(', The','',possibleTitles[titlecount])
             cleanTitle='The '+cleanTitle
@@ -223,10 +243,11 @@ def cleanupTitles(possibleTitles):
             possibleTitles[titlecount]=cleanTitle
         possibleTitles[titlecount]=possibleTitles[titlecount].replace(u'\xa0', '')
         possibleTitles[titlecount]=possibleTitles[titlecount].strip()
-    return possibleTitles
+        finalTitles.append(possibleTitles[titlecount])
+    return finalTitles
 
 def gamefaqsScraping(cleanTitle,gameID,extractImage,newGame):
-    data=scrape_utils.getGamefaqsDescAndImage(cleanTitle,'SNES',listpro)
+    data=scrape_utils.getGamefaqsDescAndImage(cleanTitle,'GENESIS',listpro)
     if(data!=-1 and data is not None):
         if(newGame):
             db_utils.saveDescription(gameID,data['desc'])
@@ -235,33 +256,9 @@ def gamefaqsScraping(cleanTitle,gameID,extractImage,newGame):
                 db_utils.saveWikiCoverLink(gameID,data['img'])
         db_utils.saveCoverPlatformLink(gameID,GEN_ID,data['img'])
 
-def fillMissingDevelopers():
-    url = r'https://en.wikipedia.org/wiki/List_of_Super_Nintendo_Entertainment_System_games'
-    tables = pd.read_html(url) # Returns list of all tables on page
-    gamest = tables[0]
-    titles = gamest[gamest.columns[0]].tolist()
-    developers = gamest[gamest.columns[1]].tolist() 
-    not_founds=[1578,1678]
-    not_found=[]
-    for count in range(0,len(gamest)):
-        if(count not in not_founds):
-            continue
-        possibleTitles=cleanupTitles(titles[count].split('•'))
-        possibleTitles[0]=re.sub('and','&',possibleTitles[0])
-        games = db_utils.customQuery('SELECT * FROM `game` WHERE title="'+possibleTitles[0]+'" OR alt_title="'+possibleTitles[0]+'" OR game.alt_title2="'+possibleTitles[0]+'" or '+ 'title="'+possibleTitles[0]+' (SNES)'+'" OR alt_title="'+possibleTitles[0]+' (SNES)'+'" OR game.alt_title2="'+possibleTitles[0]+' (SNES)'+'"')
-        if(len(games)!=1):
-            not_found.append(count)
-            print(not_found)
-            print(possibleTitles[0])
-            continue
-        game=games[0]
-        if(type(developers[count]) is not float and developers[count]!='???'):
-                devIDs = db_utils.insertDevelopers(developers[count].split(';'))            
-                db_utils.insertGameDevelopers(game['id'],devIDs)
-      
-
 def findMissingData():
-    games = db_utils.customQuery("SELECT * FROM `game` WHERE game.id>6228 AND description is null;")
+    GEN_ID=2
+    games = db_utils.customQuery("SELECT game.title,game.id,game.alt_title,(SELECT JSON_ARRAYAGG(platform.short) FROM platform LEFT JOIN gameplatform on platform.id=gameplatform.platformID WHERE gameID=game.id) as 'platforms',gameplatform.* FROM `gameplatform` LEFT join game on gameID=game.id WHERE cover_platform_uri is null and platformID=2")
     listpro = scrape_utils.findSuitableProxy()
     while(len(listpro)==0):
         print("trying to extract proxylist")
@@ -280,24 +277,55 @@ def findMissingData():
         game=games[count]
         title=re.sub('\(.*\)','',game['title'])
         print('doing '+str(game['id'])+":"+title)
-        data=scrape_utils.getGamefaqsDescAndImage(title,'SNES',listpro)
+        data=scrape_utils.getGamefaqsDescAndImage(title,'GENESIS',listpro)
         if(data!=-1 and data is not None):
-            db_utils.saveCoverPlatformLink(game['id'],4,data['img'])
+            db_utils.saveCoverPlatformLink(game['id'],GEN_ID,data['img'])
             db_utils.saveDescription(game['id'],data['desc'])
             db_utils.saveWikiCoverLink(game['id'],data['img'])
         elif(game['alt_title'] is not None):
-            data=scrape_utils.getGamefaqsDescAndImage(game['alt_title'],'SNES',listpro)
+            data=scrape_utils.getGamefaqsDescAndImage(game['alt_title'],'GENESIS',listpro)
             if(data!=-1 and data is not None):
-                db_utils.saveCoverPlatformLink(game['id'],4,data['img'])
+                db_utils.saveCoverPlatformLink(game['id'],GEN_ID,data['img'])
                 db_utils.saveDescription(game['id'],data['desc'])
                 db_utils.saveWikiCoverLink(game['id'],data['img'])
-        
+
+
+def preliminaryInvestigation():
+    url = r'https://en.wikipedia.org/wiki/List_of_Sega_Genesis_games'
+    tables = pd.read_html(url) # Returns list of all tables on page
+    games = tables[1]
+    titles = games[games.columns[0]].tolist()
+    developers = games[games.columns[1]].tolist()   
+    publishers = games[games.columns[2]].tolist()
+    dateJP = games[games.columns[3]].tolist()
+    dateUS = games[games.columns[4]].tolist()  
+    dateEU = games[games.columns[5]].tolist()
+    for count in range(2,len(titles)):
+        #INITIAL CODE TO VERIFY DATA 
+        if(publishers[count]=="Tec Toy" or publishers[count]=="Tectoy"):
+            continue
+        if(type(dateJP[count]) is float and type(dateEU[count]) is float and type(dateUS[count]) is float):
+            continue
+        if('Bulls vs' not in titles[count]):
+            continue
+        print("Title:"+titles[count])
+        titleClean=re.sub('(?<=[a-z]|[1-9])(JP|PAL|NA)','',titles[count])
+        possibleTitles=cleanupTitles(re.split('(?<=[a-z]|[1-9])([A-Z])|JP\/EU|NA|EU|JP|EU\/AU|\/|NA\/PAL',titleClean))
+        print("Processed Titles "+str(possibleTitles))
+        cleanPublishers = re.sub('\[.{0,3}\]','',publishers[count])
+        publishersSplit = re.split('(?<=[a-z])[A-Z].*|JP\/EU|NA|EU|JP|EU\/AU|\/|PAL|NA\/PAL|JP\/PAL|NA\/JP|NA\/EU',cleanPublishers)
+        print("Publisher:"+str(publishersSplit))
+        print("Developer:"+str(developers[count].split(';')))
+        print("DateJP:"+str(dateJP[count]))
+        print('----------------------------------------------------------')
+        continue
+
 def main():
     """Entry Point"""
     db_utils.connectDatabase()
-    #scrapeSnesGames()
-    #fillMissingDevelopers()
-    #findMissingData()
+    #preliminaryInvestigation()
+    #scrapeGenMDGames()
+    findMissingData()
    
 if __name__ == '__main__':
     main()     

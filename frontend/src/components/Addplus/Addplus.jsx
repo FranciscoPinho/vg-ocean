@@ -8,34 +8,47 @@ import VGOIcons from '../../components/Common/VGOIcons'
 import OverlayTitleCell from './OverlayTitleCell'
 import { server_url } from "../..";
 
-
 class Addplus extends Component {
-    state = {
-        tableGames:[],
-        addedGames:[],
-        windowWidth:0,
-        windowHeight:0,
-        mobileSidebarWidth:200,
-        isLoading:false,
-        isTableLoading:false,
-        activeConsole:null,
-        searchQuery:"",
-        lastFetchType:"",   
-        error:true,
-        totalPages:0,
-        lowerLimit:0,
-        upperLimit:30,
-        activePage:1,
-        futureSelectionsAs:"",
-        scheduledFetch:()=>{}
+    constructor(props){
+        super(props)
+        this.state = {
+            tableGames:[],
+            addedGames:[],
+            windowWidth:0,
+            windowHeight:0,
+            mobileSidebarWidth:200,
+            isLoading:false,
+            isTableLoading:false,
+            activeConsole:null,
+            searchQuery:"",
+            lastFetchType:"",   
+            error:true,
+            totalPages:0,
+            lowerLimit:0,
+            upperLimit:30,
+            activePage:1,
+            videoPlaying:false,
+            futureSelectionsAs:"",
+            scheduledFetch:()=>{}
+        }
+        this.consoles = {
+            'Nintendo':[{id:1,name:'Nintendo Entertainment System',dim:'80x116'},
+            {id:4,name:'Super Nintendo',dim:'80x55'},{id:5,name:'Game Boy',dim:'80x80'}],
+            'Sega':[{id:3,name:'Master System',dim:'80x116'},
+            {id:2,name:'Genesis/Mega Drive',dim:'80x116'}],
+            'Sony':[{id:7,name:"Playstation",dim:'80x80'}]
+        }
+        this.videoRef = null;
+        this.setVideoRef = element => {
+            this.videoRef = element;
+            if(this.videoRef)
+                this.videoRef.addEventListener("ended",()=>{
+                    this.setState({
+                        videoPlaying:false
+                    })
+                })
+        }
     }
-    consoles = {
-        'Nintendo':[{id:1,name:'Nintendo Entertainment System',dim:'55x80'},
-        {id:4,name:'Super Nintendo',dim:'80x55'}],
-        'Sega':[{id:3,name:'Master System',dim:'55x80'},
-        {id:2,name:'Genesis/Mega Drive',dim:'55x80'}]
-    }
-
     componentWillMount(){
         document.title="VGOcean - Add+"
        
@@ -44,8 +57,11 @@ class Addplus extends Component {
         this.updateWindowDimensions()
         window.addEventListener('resize', this.updateWindowDimensions);
     }
+
     componentWillUnmount(){
         window.removeEventListener('resize', this.updateWindowDimensions);
+        if(this.videoRef)
+            this.videoRef.removeEventListener("ended",()=>{})
     }
 
     updateWindowDimensions = () =>{
@@ -78,16 +94,32 @@ class Addplus extends Component {
         })
     }
 
-    fetchActiveConsoleGames = async(active) => {
+    fetchActiveConsoleGames = async(active,updateVideo=true) => {
         try{
-            this.setState({ 
+            if(updateVideo)
+                this.setState({ 
+                    activeConsole: active, 
+                    videoPlaying:false,
+                    isTableLoading:true, 
+                    tableGames:[],
+                    searchQuery:""
+                })
+            else this.setState({
                 activeConsole: active, 
                 isTableLoading:true, 
                 tableGames:[],
                 searchQuery:""
             })
             let response = await axios.get(server_url+"/games/list/"+active.id+"/"+this.state.lowerLimit+"/"+this.state.upperLimit)
-            this.setState({ 
+            if(updateVideo)
+                this.setState({ 
+                    isTableLoading:false, 
+                    videoPlaying:true,
+                    lastFetchType:"console",
+                    totalPages:Math.ceil(response.data.count/30),
+                    tableGames:this.filterAlreadyAddedGames(response.data.games)
+                })
+            else  this.setState({ 
                 isTableLoading:false, 
                 lastFetchType:"console",
                 totalPages:Math.ceil(response.data.count/30),
@@ -108,6 +140,8 @@ class Addplus extends Component {
             this.setState({
                 activeConsole: null,
                 tableGames:[],
+                totalPages:0,
+                videoPlaying:false,
                 searchQuery:"",
             })
             return
@@ -116,6 +150,7 @@ class Addplus extends Component {
             return
         this.closeSidebar()
         this.fetchActiveConsoleGames(consoleobj)
+     
     } 
     
     handleSearch = (e,{value}) =>{
@@ -128,7 +163,7 @@ class Addplus extends Component {
                 scheduledFetch:()=>{}
             })
             if(this.state.activeConsole)
-                this.fetchActiveConsoleGames(this.state.activeConsole)
+                this.fetchActiveConsoleGames(this.state.activeConsole,false)
             return
         }
         this.setState({
@@ -219,20 +254,21 @@ class Addplus extends Component {
                             {Object.keys(this.consoles).map((family)=>{
                                 return ( 
                                     <React.Fragment key={family}>
-                                    <Menu.Header><h3 className="sidebar-header">{family}</h3></Menu.Header>
-                                    {this.consoles[family].map((consol)=>{
-                                        return (
-                                            <Menu.Item 
-                                            className="sidebar-item"
-                                            key={consol['id']} 
-                                            consoleobj={consol} 
-                                            name={consol['name']} 
-                                            active={this.state.activeConsole ? this.state.activeConsole.name === consol['name']:false} 
-                                            onClick={this.handleConsoleSelection}>
-                                                {consol['name']}
-                                            </Menu.Item>
-                                        )})
-                                    }
+                                        <Menu.Header><h3 className="sidebar-header">{family}</h3></Menu.Header>
+                                        {this.consoles[family].map((consol)=>{
+                                            return (
+                                                <Menu.Item 
+                                                className="sidebar-item"
+                                                key={consol['id']} 
+                                                consoleobj={consol} 
+                                                name={consol['name']} 
+                                                active={this.state.activeConsole ? this.state.activeConsole.name === consol['name']:false} 
+                                                onClick={this.handleConsoleSelection}>
+                                                    {consol['name']}
+                                                </Menu.Item>
+                                            )})
+                                        }
+                                        <br/>
                                     </React.Fragment>
                                 )
                             })}
@@ -244,7 +280,7 @@ class Addplus extends Component {
     renderMobileSidebar = () => {
         return (
         <div className="sidenav" style={{width:this.state.mobileSidebarWidth}}>
-             <a class="closebtn" onClick={this.closeSidebar}>&times;</a>
+             <a className="closebtn" onClick={this.closeSidebar}>&times;</a>
              <Menu pointing secondary vertical className="sidebar-ocean" style={{marginLeft:0,width:"auto"}}>
                 <div className="sidebar-content">
                         {Object.keys(this.consoles).map((family)=>{
@@ -264,6 +300,7 @@ class Addplus extends Component {
                                         </Menu.Item>
                                     )})
                                 }
+                                <br/>
                                 </React.Fragment>
                             )
                         })}
@@ -277,11 +314,13 @@ class Addplus extends Component {
             mobileSidebarWidth:200
         })
     }
+
     closeSidebar=()=>{
         this.setState({
             mobileSidebarWidth:0
         })
     }
+
     renderTableGames = () => {
         let colspan
         this.mobileOrPortraitTablet() ? colspan=2 : colspan=4
@@ -310,9 +349,7 @@ class Addplus extends Component {
                     {this.state.tableGames.map((game)=>{
                         let imageURL = this.processImageURL(game)
                         return <Table.Row key={game.id}>
-
                                     <OverlayTitleCell imageURL={imageURL} title={game.title} clickHandler={()=>this.addGame(game)}/>
-                       
                                     <Table.Cell width={16} className="overflow-x-scroll">
                                         <Container className="table-icon-container">
                                             <VGOIcons addplusIconClickHandler={this.iconClickHandler} game={game} />
@@ -327,9 +364,7 @@ class Addplus extends Component {
                      
                     })}
                     </Transition.Group>
-                    
                     }
-                  
              </Table>
             </div>
         )
@@ -345,6 +380,22 @@ class Addplus extends Component {
         )
     }
 
+    playBackgroundVideo = () => {
+        if(!this.state.activeConsole)
+            return null
+        switch(this.state.activeConsole.id){
+            case 7:
+                return  (<video ref={this.setVideoRef} id="background-video" autoPlay>
+                            <source src={server_url+"/videos/ps1_startup.mp4"} type="video/mp4" />
+                        </video>)
+            case 2:
+                 return  (<video ref={this.setVideoRef} id="background-video" autoPlay  >
+                            <source src={server_url+"/videos/gen.mp4"} type="video/mp4" />
+                          </video>)
+            default:
+                return null
+        }
+    }
     /*
     @TODO flashing mandatory if try to add without selection of icon
     @TODO FIX MOBILE OR TABLET DISPLAY OF THINGS IN GENERAL
@@ -355,9 +406,9 @@ class Addplus extends Component {
         return (
         <React.Fragment>
             <Heading/>
+            {this.state.videoPlaying && !mobile && this.playBackgroundVideo()}
             <Grid id="addplus" stackable>
                 {!mobile ? this.renderSidebar():this.renderMobileSidebar()}
-               
                 <Grid.Column width={10}>
                 <Dimmer active={this.state.isTableLoading}> 
                     <Loader size="big" />

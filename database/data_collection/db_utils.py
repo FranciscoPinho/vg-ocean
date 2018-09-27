@@ -15,8 +15,8 @@ def insertPublishers(allPublishers):
     for count in range(0,len(allPublishers)):
         cleanpubs = allPublishers[count].strip()
         cleanpubs = cleanpubs.replace(u'\xa0', '')
-        if(cleanpubs==''):
-            return idList
+        if(cleanpubs==""):
+            continue
         try:
             with db.cursor() as cursor:
                 # Create a new record
@@ -55,8 +55,8 @@ def insertDevelopers(alldevs):
     for count in range(0,len(alldevs)):
         cleandevs = alldevs[count].strip()
         cleandevs = cleandevs.replace(u'\xa0', '')
-        if(cleandevs==''):
-            return idList
+        if(cleandevs==""):
+            continue
         try:
             with db.cursor() as cursor:
                 # Create a new record
@@ -92,8 +92,8 @@ def insertArtists(allartists):
     idList = []
     for count in range(0,len(allartists)):
         cleanartist = allartists[count].strip()
-        if(cleanartist==''):
-            return idList
+        if(cleanartist==""):
+            continue
         try:
             with db.cursor() as cursor:
                 # Create a new record
@@ -237,7 +237,7 @@ def gameExistsMultiple(game_title):
             for count in range(0,len(results)):
                 conflict = {}
                 cleanTitle=re.sub('\(.*?\)','',results[count]['title']).strip()
-                currentRatio=fuzz.ratio(cleanTitle,game_title)
+                currentRatio=fuzz.ratio(cleanTitle.lower(),game_title.lower())
                 if(currentRatio>75 or game_title in results[count]['title']):
                     lastDigitsSearch = re.search('I+|\d{0,2}', game_title[::-1])
                     lastDigitsTitle = re.search('I+|\d{0,2}', cleanTitle[::-1])
@@ -366,7 +366,7 @@ def saveCoverPlatformLink(gameId,platformId,link):
 
 def saveDescription(gameId,desc):
     with db.cursor() as cursor:
-        sql = "UPDATE `game` SET `description`=%s WHERE `id`=%s AND `description` is NULL"
+        sql = "UPDATE `game` SET `description`=%s WHERE `id`=%s"
         cursor.execute(sql, [desc,gameId])
         db.commit()
     cursor.close()

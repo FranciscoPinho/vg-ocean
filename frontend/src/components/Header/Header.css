@@ -4,6 +4,7 @@
   height: 50px;
   background-color: #747C92;
   position: relative;
+  z-index:20
 }
 
 .nav > .nav-header {

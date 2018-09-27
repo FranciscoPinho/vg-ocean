@@ -187,7 +187,7 @@ def _extractCleanDataField(field,infobox,data):
             cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\|','',postmatch)
         else:
             cleanField = re.sub('\[+?|\]+?|\(.*?\)|.+?\||}}','',infobox[field])
-        splitField = re.split('<.*?>|,|*',cleanField)
+        splitField = re.split('<.*?>|,\|*',cleanField)
         data[field]=[item for item in splitField if not re.match("'+?",item)]
 
 def _extractCleanGenre(infobox,data):

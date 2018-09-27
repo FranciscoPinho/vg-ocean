@@ -25,9 +25,12 @@ exports.downloadPlatformImageFromGame = async (game,path,awaitDownload,platformI
             res = await executeDownload(options,awaitDownload)
         else res = executeDownload(options,awaitDownload)
         if(res==0)
-            if(game.cover_platform_link===game.cover_wikipedia_link)
-                connection.query("UPDATE game SET cover_uri=? WHERE game.id=?",[cover_uri,game.id])
+            connection.query("UPDATE game SET cover_uri=? WHERE cover_uri is null or cover_uri='' and game.id=?",[cover_uri,game.id])
             connection.query("UPDATE gameplatform SET cover_platform_uri=? WHERE gameID=? AND platformID=?",[cover_uri,game.id,platformID])
+            //code might never be relevant
+            //if(game.cover_platform_link===game.cover_wikipedia_link)
+            //    connection.query("UPDATE game SET cover_uri=? WHERE game.id=?",[cover_uri,game.id])
+           
 }
 
 exports.downloadGeneralImageFromGame = async (game,path,awaitDownload) => {

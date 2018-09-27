@@ -64,6 +64,7 @@ class Heading extends Component {
                     </Accordion>
                     <Link to="/add+1"> Premium</Link>
                     <Link to="/feedback">Feedback</Link>
+                    <Link to="/credits">Credits</Link>
                 </div>
                 <div className="nav-log-modal">
                     <LoginModal />
@@ -73,3 +74,5 @@ class Heading extends Component {
         )
     }
 } export default Heading
+
+//in credits must include “Sound effects obtained from https://www.zapsplat.com“

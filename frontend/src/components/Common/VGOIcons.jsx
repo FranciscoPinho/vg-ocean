@@ -9,21 +9,28 @@ import Unplayed from '../../assets/icons/unplayed_icon.png'
 import Playing from '../../assets/icons/playing_icon.png'
 import OnHold from '../../assets/icons/onhold_icon.png'
 import Dropped from '../../assets/icons/ditched_icon1.png'
-
-
-
+import Sound from 'react-sound';
+import off from '../../assets/sounds/toggle_off.mp3'
+import on from '../../assets/sounds/toggle_on.mp3'
 
 class VGOIcons extends Component {
     state={
-        toggledIcon:""
+        toggledIcon:"",
+        playSound:false,
+        sound:0,
     }
     
     iconClickHandler = (type,game) => {
         let newtype=""
-        if(type!==this.state.toggledIcon)
+        let sound=0
+        if(type!==this.state.toggledIcon){
             newtype=type
+            sound=1
+        }
         this.setState({
-            toggledIcon:newtype
+            toggledIcon:newtype,
+            playSound:true,
+            sound:sound
         })
         if(this.props.addplusIconClickHandler){
             this.props.addplusIconClickHandler(newtype,game)
@@ -73,7 +80,18 @@ class VGOIcons extends Component {
                 <Image className={this.state.toggledIcon==='D' ? "vgocean-icon-last icon-toggled" : "vgocean-icon-last"} src={Dropped} onClick={()=>this.iconClickHandler('D',this.props.game)}></Image>
              </React.Fragment>
             }
-           
+            {this.state.playSound &&
+               <Sound
+                    url={this.state.sound ? on : off}
+                    playStatus={Sound.status.PLAYING}
+                    volume={15}
+                    onFinishedPlaying={()=>{
+                        this.setState({
+                            playSound:false
+                        })
+                    }}
+                />
+            }
         </React.Fragment>
         )
     }
