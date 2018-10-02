@@ -113,7 +113,7 @@
 }
 
 .create-accordion .title:not(.ui) {
-  padding: .5em 0;
+  padding: 13px 10px !important;
   font-family: Montserrat,sans-serif !important;
   background-color: #4d4d4d;
   font-size: 1.2em;

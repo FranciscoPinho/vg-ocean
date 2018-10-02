@@ -56,10 +56,10 @@ class Heading extends Component {
                         <Accordion.Title active={activeIndex === 0} index={0} onClick={this.handleClick}>
                             <Icon name='dropdown' />
                             Create
-                    </Accordion.Title>
+                        </Accordion.Title>
                         <Accordion.Content active={activeIndex === 0}>
-                        <Link to="/feedback">List</Link>
-                        <Link to="/feedback">Article</Link>
+                            <Link to="/feedback">List</Link>
+                            <Link to="/feedback">Article</Link>
                         </Accordion.Content>
                     </Accordion>
                     <Link to="/add+1"> Premium</Link>
