@@ -32,6 +32,7 @@ let hltb_handler = (result,name) => {
                 if (err) 
                     console.log(err)
                 console.log("changed "+name)
+            
             }) 
         }
     }
@@ -91,7 +92,7 @@ exports.reThumbImageFromGameID = async(req,res) => {
             return res.status(500).send('Invalid platformID')
         }
         let path=process.env.PUBLIC_DIR+'/images/'+plat+'/'+gameID+'/'
-        await imageUtils.thumbImage(path,55,80)
+        await imageUtils.thumbImage(path,req.params.width,req.params.height)
         return res.status(200).send('success')
     }   
     catch(err){
@@ -110,15 +111,14 @@ exports.redownloadImageFromGameID = async(req,res) => {
         try {
             if(results.length>0){
                 let directory = process.env.PUBLIC_DIR+'/images/'+plat+'/'+gameID+'/'
-                if (!fs.existsSync(directory))
-                    return res.status(500).send('Directory for gameID '+gameID+' not found')
-                else {
+                if (fs.existsSync(directory))
                     await imageUtils.deleteFilesFromDir(directory)
-                    await imageUtils.downloadPlatformImageFromGame(results[0],directory,true,req.params.platformID,plat)
-                    await imageUtils.thumbImage(directory,55,80)
-                    return res.status(200).send('success')
-                }
+                    
+                await imageUtils.downloadPlatformImageFromGame(results[0],directory,true,req.params.platformID,plat)
+                await imageUtils.thumbImage(directory,55,80)
+                return res.status(200).send('success')
             }
+            else return res.status(204).send('No results')
         }
         catch(error){
             return res.status(500).send(error)
@@ -133,7 +133,7 @@ exports.downloadAllImagesPlatform = (req,res) => {
     if(plat===-1){
         return res.status(500).send('Invalid platformID');
     }
-    pool.query("SELECT game.id,game.title,game.cover_wikipedia_link,gameplatform.cover_platform_link FROM `gameplatform` LEFT JOIN game on gameplatform.gameID=game.id WHERE platformID=? AND cover_platform_link is not null AND cover_uri is null ORDER BY game.id",[req.params.platformID], (err, results) => {
+    pool.query("SELECT game.id,game.title,game.cover_wikipedia_link,gameplatform.cover_platform_link FROM `gameplatform` LEFT JOIN game on gameplatform.gameID=game.id WHERE platformID=? AND cover_platform_link is not null AND cover_platform_uri is null ORDER BY game.id",[req.params.platformID], (err, results) => {
         if (err) 
             return res.status(500).send('Error connecting to database.');
         for(let i=0, arrsize=results.length; i<arrsize;i++){
@@ -167,8 +167,8 @@ determinePlatformFromParam = platID => {
             return "sms"
         case "4":
             return "snes"
-        //case "5":
-         //   return "ps1"
+        case "5":
+            return "gb"
         default:
             return -1
     }

@@ -8,22 +8,32 @@ import Finished from '../../assets/icons/completed_icon.png'
 import Unplayed from '../../assets/icons/unplayed_icon.png'
 import Playing from '../../assets/icons/playing_icon.png'
 import OnHold from '../../assets/icons/onhold_icon.png'
-import Dropped from '../../assets/icons/ditched_icon2.png'
-
-
-
+import Dropped from '../../assets/icons/ditched_icon1.png'
+import Sound from 'react-sound';
+import off from '../../assets/sounds/toggle_off.mp3'
+import on from '../../assets/sounds/toggle_on.mp3'
 
 class VGOIcons extends Component {
     state={
-        toggledIcon:''
+        toggledIcon:"",
+        playSound:false,
+        sound:0,
     }
     
     iconClickHandler = (type,game) => {
+        let newtype=""
+        let sound=0
+        if(type!==this.state.toggledIcon){
+            newtype=type
+            sound=1
+        }
         this.setState({
-            toggledIcon:type
+            toggledIcon:newtype,
+            playSound:true,
+            sound:sound
         })
         if(this.props.addplusIconClickHandler){
-            this.props.addplusIconClickHandler(type,game)
+            this.props.addplusIconClickHandler(newtype,game)
         }
     }
 
@@ -53,12 +63,12 @@ class VGOIcons extends Component {
         <React.Fragment>
             {this.props.withpopup ? 
              <React.Fragment>
-                <Popup trigger={<Image className={this.state.toggledIcon==='C' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Completed} onClick={()=>this.iconClickHandler('C',null)}></Image>}  content='100% Completion of game' hideOnScroll />
-                <Popup trigger={<Image className={this.state.toggledIcon==='F' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Finished} onClick={()=>this.iconClickHandler('F',null)}></Image>} content='Finished main story at least' hideOnScroll />
-                <Popup trigger={<Image className={this.state.toggledIcon==='U' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Unplayed} onClick={()=>this.iconClickHandler('U',null)}></Image>} content='Plan to play or unplayed' hideOnScroll />
-                <Popup trigger={<Image className={this.state.toggledIcon==='P' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Playing} onClick={()=>this.iconClickHandler('P',null)}></Image>} content='Currently playing' hideOnScroll />
-                <Popup trigger={<Image className={this.state.toggledIcon==='H' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={OnHold} onClick={()=>this.iconClickHandler('H',null)}></Image>} content='Game is on hold' hideOnScroll />
-                <Popup trigger={<Image className={this.state.toggledIcon==='D' ? "vgocean-icon-last icon-toggled" : "vgocean-icon-last"} src={Dropped} onClick={()=>this.iconClickHandler('D',null)}></Image>} content='Dropped the game, it must suck' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='C' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Completed} onClick={()=>this.iconClickHandler('C',null)}></Image>}  content='Completed: 100% Completed game' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='F' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Finished} onClick={()=>this.iconClickHandler('F',null)}></Image>} content='Beaten: Main campaign finished' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='U' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Unplayed} onClick={()=>this.iconClickHandler('U',null)}></Image>} content='Want to Play: Plan to play or unplayed' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='P' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={Playing} onClick={()=>this.iconClickHandler('P',null)}></Image>} content='Playing: Currently playing' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='H' ? "vgocean-icon icon-toggled" : "vgocean-icon"} src={OnHold} onClick={()=>this.iconClickHandler('H',null)}></Image>} content='On Hold: Game is on hold' hideOnScroll />
+                <Popup trigger={<Image className={this.state.toggledIcon==='D' ? "vgocean-icon-last icon-toggled" : "vgocean-icon-last"} src={Dropped} onClick={()=>this.iconClickHandler('D',null)}></Image>} content='Archived: Never playing again, did not finish it' hideOnScroll />
              </React.Fragment>
              :
              <React.Fragment>
@@ -70,7 +80,18 @@ class VGOIcons extends Component {
                 <Image className={this.state.toggledIcon==='D' ? "vgocean-icon-last icon-toggled" : "vgocean-icon-last"} src={Dropped} onClick={()=>this.iconClickHandler('D',this.props.game)}></Image>
              </React.Fragment>
             }
-           
+            {this.state.playSound &&
+               <Sound
+                    url={this.state.sound ? on : off}
+                    playStatus={Sound.status.PLAYING}
+                    volume={15}
+                    onFinishedPlaying={()=>{
+                        this.setState({
+                            playSound:false
+                        })
+                    }}
+                />
+            }
         </React.Fragment>
         )
     }

@@ -4,7 +4,7 @@ import './semantic/dist/semantic.min.css'
 import Home from './components/Home'
 import { Provider } from "react-redux"
 import { BrowserRouter as Router, Route, Switch} from "react-router-dom" 
-import Addplus from './components/Addplus/Addplus'
+import Addplus from './components/Addplus/Add+'
 import store from './Store'
 import './components/Common/Common.css'
 import registerServiceWorker from './registerServiceWorker'
@@ -15,6 +15,7 @@ export var server_url
 if (process.env.NODE_ENV !== 'production') {
     server_url = process.env.REACT_APP_SERVER_BASE_URL;
 }
+else server_url = process.env.REACT_APP_SERVER_BASE_URL_PROD;
 
 ReactDOM.render(<Provider store={store}>
      <Router>

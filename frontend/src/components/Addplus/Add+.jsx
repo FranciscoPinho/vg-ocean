@@ -1,11 +1,11 @@
 import React, { Component } from "react"
 import Heading from '../Header/Header'
-import {Grid,Table,Menu,Segment,Icon,Container,Search,Loader,Dimmer,Pagination,Button,Transition, Accordion} from 'semantic-ui-react'
+import {Grid,Card,Menu,Segment,Icon,Container,Search,Loader,Dimmer,Pagination,Button,Transition,Accordion} from 'semantic-ui-react'
 import {debounce} from 'throttle-debounce'
 import axios from 'axios'
-import './Addplus.css'
-import VGOIcons from '../../components/Common/VGOIcons'
-import OverlayTitleCell from './OverlayTitleCell'
+import './Add+.css'
+import VGOIcons from '../Common/VGOIcons'
+import GameCardAdd from './GameCardAdd'
 import { server_url } from "../.."
 
 class Addplus extends Component {
@@ -13,7 +13,6 @@ class Addplus extends Component {
         super(props)
         this.state = {
             tableGames:[],
-            addedGames:[],
             windowWidth:0,
             windowHeight:0,
             mobileSidebarWidth:0,
@@ -32,39 +31,39 @@ class Addplus extends Component {
             scheduledFetch:()=>{}
         }
         this.consoles = {
-            'Nintendo':[{id:1,name:'Nintendo Entertainment System',dim:'80x116'},
-            {id:4,name:'Super Nintendo',dim:'116x80'},
-            {id:5,name:'Game Boy',dim:'80x80'},
-            {id:6,name:'Game Boy Color',dim:'80x80'},
-            {id:10,name:'Nintendo 64',dim:'80x80'},
-            {id:12,name:'Gameboy Advance',dim:'80x80'},
-            {id:40,name:'Gamecube',dim:'80x80'},
-            {id:41,name:'Nintendo DS',dim:'80x80'},
-            {id:42,name:'Wii',dim:'80x80'},
-            {id:43,name:'Nintendo 3DS',dim:'80x80'},
-            {id:44,name:'Wii U',dim:'80x80'},
-            {id:45,name:'Nintendo Switch',dim:'80x80'}],
-            'Sega':[{id:3,name:'Master System',dim:'80x116'},
-            {id:2,name:'Genesis/Mega Drive',dim:'80x116'},
-            {id:7,name:'Sega CD',dim:'80x116'},
-            {id:8,name:'Sega 32x',dim:'80x116'},
-            {id:10,name:'Sega Saturn',dim:'80x116'},
-            {id:11,name:'Dreamcast',dim:'80x80'}],
-            'Sony':[{id:9,name:"Playstation",dim:'80x80'},
-            {id:13,name:"Playstation 2",dim:'80x80'},
-            {id:54,name:"Playstation Portable",dim:'80x80'},
-            {id:50,name:"Playstation 3",dim:'80x80'},
-            {id:51,name:"Playstation Vita",dim:'80x80'},
-            {id:52,name:"Playstation 4",dim:'80x80'},
-            {id:53,name:"Playstation VR",dim:'80x80'}],
-            'Microsoft':[{id:72,name:"Xbox",dim:'80x116'},
-            {id:71,name:"Xbox 360",dim:'80x116'},
-            {id:70,name:"Xbox One",dim:'80x116'}],
-            'NEC':[{id:25,name:"TurboGrafx-16",dim:'80x80'},
-            {id:30,name:"TurboGrafx-CD",dim:'80x80'}],
-            'Misc':[{id:90,name:"Steam",dim:'116x80'},
-            {id:60,name:"PC",dim:'116x80'},
-            {id:61,name:"VR",dim:'80x116'}]
+            'Nintendo':[{id:1,name:'Nintendo Entertainment System',width:80, height:116},
+            {id:4,name:'Super Nintendo',width:116, height:80},
+            {id:5,name:'Game Boy',width:80, height:80},
+            {id:6,name:'Game Boy Color',width:80, height:80},
+            {id:10,name:'Nintendo 64',width:80, height:80},
+            {id:12,name:'Gameboy Advance',width:80, height:80},
+            {id:40,name:'Gamecube',width:80, height:80},
+            {id:41,name:'Nintendo DS',width:80, height:80},
+            {id:42,name:'Wii',width:80, height:80},
+            {id:43,name:'Nintendo 3DS',width:80, height:80},
+            {id:44,name:'Wii U',width:80, height:80},
+            {id:45,name:'Nintendo Switch',width:80, height:80}],
+            'Sega':[{id:3,name:'Master System',width:80, height:116},
+            {id:2,name:'Genesis/Mega Drive',width:80, height:116},
+            {id:7,name:'Sega CD',width:80, height:116},
+            {id:8,name:'Sega 32X:',width:80, height:116},
+            {id:10,name:'Sega Saturn',width:80, height:116},
+            {id:11,name:'Dreamcast',width:80, height:80}],
+            'Sony':[{id:9,name:"Playstation",width:80, height:80},
+            {id:13,name:"Playstation 2",width:80, height:80},
+            {id:54,name:"Playstation Portable",width:80, height:80},
+            {id:50,name:"Playstation 3",width:80, height:80},
+            {id:51,name:"Playstation Vita",width:80, height:80},
+            {id:52,name:"Playstation 4",width:80, height:80},
+            {id:53,name:"Playstation VR",width:80, height:80}],
+            'Microsoft':[{id:72,name:"Xbox",width:80, height:116},
+            {id:71,name:"Xbox 360",width:80, height:116},
+            {id:70,name:"Xbox One",width:80, height:116}],
+            'NEC':[{id:25,name:"TurboGrafx-16",width:80, height:80},
+            {id:30,name:"TurboGrafx-CD",width:80, height:80}],
+            'Misc':[{id:90,name:"Steam",width:116, height:80},
+            {id:60,name:"PC",width:116, height:80},
+            {id:61,name:"VR",width:80, height:116}]
         }
         this.videoRef = null
         this.setVideoRef = element => {
@@ -113,37 +112,13 @@ class Addplus extends Component {
         if(!newgame.type && !this.state.futureSelectionsAs)
             //display error, must choose type first
             return -1
-        const {tableGames,addedGames} = this.state
-        tableGames.splice(tableGames.indexOf(newgame),1)
-        if(!newgame.type)
-            newgame = {...newgame,"type":this.state.futureSelectionsAs}
-        if(addedGames.indexOf(newgame)===-1){
-            this.setState((prevState)=>({
-                addedGames:[...prevState.addedGames,newgame],
-                tableGames: tableGames
-            }))
-            return 1
-        }
+    }
+
+    updateGameDetails = (game) => {
+
     }
 
     removeGame = (game) => {
-        const {tableGames,addedGames,searchQuery} = this.state
-        addedGames.splice(addedGames.indexOf(game),1)
-        if(tableGames.indexOf(game)===-1)
-            if(!searchQuery)
-                this.setState({
-                    addedGames: addedGames,
-                    tableGames: [...tableGames,game].sort((a,b)=>{
-                        if(a.title < b.title) return -1
-                        if(a.title > b.title) return 1
-                        return 0
-                    })
-                })
-            else
-                this.setState({
-                    addedGames: addedGames,
-                    tableGames: [game,...tableGames]
-                })
     }
 
     fetchActiveConsoleGames = async(active,updateVideo=true) => {
@@ -169,13 +144,13 @@ class Addplus extends Component {
                     videoPlaying:true,
                     lastFetchType:"console",
                     totalPages:Math.ceil(response.data.count/30),
-                    tableGames:this.filterAlreadyAddedGames(response.data.games)
+                    tableGames:response.data.games
                 })
             else  this.setState({ 
                 isTableLoading:false, 
                 lastFetchType:"console",
                 totalPages:Math.ceil(response.data.count/30),
-                tableGames:this.filterAlreadyAddedGames(response.data.games)
+                tableGames:this.response.data.games
             })
         }
         catch(error){
@@ -195,6 +170,8 @@ class Addplus extends Component {
                 totalPages:0,
                 videoPlaying:false,
                 searchQuery:"",
+                activePage:1,
+                offset:0
             })
             return
         }
@@ -211,6 +188,8 @@ class Addplus extends Component {
             this.setState({
                 searchQuery:value,
                 tableGames:[],
+                activePage:1,
+                offset:0,
                 isLoading:false,
                 scheduledFetch:()=>{}
             })
@@ -221,7 +200,7 @@ class Addplus extends Component {
         this.setState({
             searchQuery:value,
             isLoading:true,
-            scheduledFetch:setTimeout(()=>this.fetchSearchResults(value),700)
+            scheduledFetch:setTimeout(()=>this.fetchSearchResults(value),500)
         })
     }
 
@@ -256,7 +235,7 @@ class Addplus extends Component {
                 isLoading:false,
                 lastFetchType:"search",
                 totalPages:Math.ceil(response.data.count/30),
-                tableGames:this.filterAlreadyAddedGames(response.data.games)
+                tableGames:response.data.games
             })
         }
         catch(error){
@@ -284,13 +263,6 @@ class Addplus extends Component {
         })
     }
 
-    filterAlreadyAddedGames = (tableGames) => {
-        const {addedGames} = this.state
-        let filteredTable = tableGames.filter(game => {
-            return !this.checkIfAddedGame(addedGames,game)
-        })
-        return this.filterGameTitles(filteredTable)
-    }
 
     filterGameTitles = (tableGames) => {
         const {activeConsole} = this.state
@@ -302,11 +274,7 @@ class Addplus extends Component {
         })
     }
 
-    checkIfAddedGame = (addedGames,game) => {
-        return addedGames.find(addedgame => {
-            return addedgame.id===game.id
-        })
-    }
+
     consoleAccordionClick = (e,itemProps) => {
         const { index } = itemProps
         const { activeIndex } = this.state
@@ -347,7 +315,7 @@ class Addplus extends Component {
 
     renderSidebar = () =>{
         return (
-            <Grid.Column width={3} className="sidebar-column tablet hidden mobile hidden">
+            <Grid.Column width={2} className="sidebar-column tablet hidden mobile hidden">
                 <Menu pointing secondary vertical className="sidebar-ocean sidebar-ocean-desktop">
                     {this.renderConsoleAccordion()}
                 </Menu>
@@ -375,73 +343,6 @@ class Addplus extends Component {
         })
     }
 
-    renderTableGames = () => {
-        let colspan
-        let mobile =  this.mobileOrPortraitTablet()
-        mobile ? colspan=2 : colspan=4
-        return (
-        <div className="table-games-body">
-            <Table celled unstackable fixed className="table-games">
-                <Table.Header >
-                    <Table.Row>
-                        <Table.HeaderCell width={colspan===2? 10:8} className="table-games-header">Title</Table.HeaderCell>
-                        <Table.HeaderCell width={colspan===2? 6:7}className="table-games-header">Type <span className="mandatory">(mandatory)</span></Table.HeaderCell>
-                        {!mobile &&
-                            <React.Fragment>
-                            <Table.HeaderCell width={3}className="table-games-header" >Playtime</Table.HeaderCell>
-                            <Table.HeaderCell width={2}className="table-games-header">Rating</Table.HeaderCell>
-                            </React.Fragment>
-                        }
-                    </Table.Row>
-                </Table.Header>
-               
-                    {this.state.tableGames.length===0 ? 
-                    <Table.Body>
-                        <Table.Row>
-                            <Table.Cell textAlign="center" colSpan={colspan}>
-                                <span className="lightgrey-font">Select a console and/or input search query to look for games!</span>
-                            </Table.Cell>
-                        </Table.Row> 
-                    </Table.Body>
-                    :
-                    <Transition.Group as={Table.Body} duration={500} animation={colspan===2?"fly up":"fly left"}>
-                    {this.state.tableGames.map((game)=>{
-                        let imageURL = this.processImageURL(game)
-                        return <Table.Row key={game.id}>
-                                    <OverlayTitleCell imageURL={imageURL} title={game.title} clickHandler={()=>this.addGame(game)}/>
-                                    <Table.Cell width={16} className="overflow-x-scroll">
-                                        <Container className="table-icon-container">
-                                            <VGOIcons addplusIconClickHandler={this.iconClickHandler} game={game} />
-                                        </Container>
-                                    </Table.Cell>
-                                    {!mobile &&
-                                    <React.Fragment>
-                                    <Table.Cell width={16} className="mobile hidden overflow-x-scroll">
-                                        None
-                                    </Table.Cell>
-                                        <Table.Cell width={16} className="mobile hidden overflow-x-scroll">
-                                    </Table.Cell>
-                                    </React.Fragment>
-                                    }
-                                </Table.Row>
-                     
-                    })}
-                    </Transition.Group>
-                    }
-             </Table>
-            </div>
-        )
-    }
-
-    renderAddedGames = () =>  {
-        return (
-            <React.Fragment>
-            {this.state.addedGames.map((game)=>{
-               return <Segment key={game.title} onClick={()=>this.removeGame(game)} className="added-game"><Icon name="minus"/><span className="clip-text">{game.title}</span><VGOIcons singleicon={game.type}/></Segment> 
-            })}
-            </React.Fragment>
-        )
-    }
 
     playBackgroundVideo = () => {
         if(!this.state.activeConsole)
@@ -459,6 +360,75 @@ class Addplus extends Component {
                 return null
         }
     }
+
+    renderPagination = () =>{
+        return <React.Fragment>
+        {this.state.totalPages>1 && 
+        <div className="pagination-container">
+            <Pagination
+            activePage={this.state.activePage}
+            boundaryRange={1}
+            onPageChange={this.handlePaginationChange}
+            siblingRange={1}
+            totalPages={this.state.totalPages}
+            />
+        </div>
+        }
+        </React.Fragment>
+    }
+
+    renderSearchBar = (mobile) => {
+        return <Segment className={mobile ? "segment-search lightgrey-font":"inline-flex-centered segment-search lightgrey-font"}>
+            <div className="inline-flex-centered">
+                Toggle to mark future selections as:&nbsp;&nbsp;
+                <VGOIcons className="icons" addplusIconClickHandler={this.iconClickHandler} withpopup />
+            </div>
+            {mobile ?
+                <div className="search-div-mobile">
+                <Icon onClick={this.openSidebar} className="sidebar-ocean-hamburguer" inverted name='bars' size='large'/>
+                <Search
+                    style={{textAlign:"center",paddingTop:"5px"}}
+                    showNoResults={false}
+                    loading={this.state.isLoading}
+                    onSearchChange={debounce(500,true,this.handleSearch)}
+                    value={this.state.searchQuery}
+                />
+                </div>
+                :
+                <Search
+                    showNoResults={false}
+                    loading={this.state.isLoading}
+                    onSearchChange={debounce(500,true,this.handleSearch)}
+                    value={this.state.searchQuery}
+                />
+            }
+        </Segment>    
+    }
+   
+
+    renderGameCards = () => {
+        return (
+        <Card.Group centered stackable itemsPerRow={6}>
+            {this.state.tableGames.map((game)=>{
+                let imageURL = this.processImageURL(game);
+                let activeConsole = this.state.activeConsole.name;
+                return (
+                <React.Fragment key={game.id}>
+                    <GameCardAdd
+                    platformCardWidth={this.state.activeConsole.width} 
+                    platformCardHeight={this.state.activeConsole.height}
+                    imageURL={imageURL} 
+                    platform={this.state.lastFetchType==="console" ? activeConsole : game.platform} 
+                    title={game.title} addClick={()=>this.addGame(game)} 
+                    removeClick={()=>this.removeGame(game)}
+                    />
+                </React.Fragment>
+                );
+            })}
+        </Card.Group>
+        )
+        
+    }
     /*
     @TODO flashing mandatory if try to add without selection of icon
     @TODO FIX MOBILE OR TABLET DISPLAY OF THINGS IN GENERAL
@@ -472,58 +442,13 @@ class Addplus extends Component {
             {this.state.videoPlaying && !mobile && this.playBackgroundVideo()}
             <Grid id="addplus" stackable>
                 {!mobile ? this.renderSidebar():this.renderMobileSidebar()}
-                <Grid.Column width={10}>
+                <Grid.Column width={14}>
                 <Dimmer active={this.state.isTableLoading}> 
                     <Loader size="big" />
                 </Dimmer>
-                <Segment className={mobile ? "segment-table lightgrey-font":"inline-flex-centered segment-table lightgrey-font"}>
-                    <div className="inline-flex-centered">
-                        Toggle to mark future selections as:&nbsp;&nbsp;
-                        <VGOIcons className="icons" addplusIconClickHandler={this.iconClickHandler} withpopup />
-                    </div>
-                    {mobile ?
-                    <div className="search-div-mobile">
-                    <Icon onClick={this.openSidebar} className="sidebar-ocean-hamburguer" inverted name='bars' size='large'/>
-                    <Search
-                        style={{textAlign:"center",paddingTop:"5px"}}
-                        showNoResults={false}
-                        loading={this.state.isLoading}
-                        onSearchChange={debounce(1000,true,this.handleSearch)}
-                        value={this.state.searchQuery}
-                    />
-                    </div>
-                    :
-                    <Search
-                        showNoResults={false}
-                        loading={this.state.isLoading}
-                        onSearchChange={debounce(1000,true,this.handleSearch)}
-                        value={this.state.searchQuery}
-                    />
-                    }  
-                </Segment>     
-                {this.renderTableGames()}
-                {this.state.totalPages>1 && 
-                <div className="pagination-container">
-                    <Pagination
-                    activePage={this.state.activePage}
-                    boundaryRange={1}
-                    onPageChange={this.handlePaginationChange}
-                    siblingRange={1}
-                    totalPages={this.state.totalPages}
-                    />
-                </div>
-                }
-            </Grid.Column>
-            <Grid.Column width={3}>
-            
-            <Segment raised className="additions-header lightgrey-font">Adding to collection:</Segment>    
-            <Segment.Group className="additions-segment-group">
-                {this.renderAddedGames()}
-            </Segment.Group>
-            {this.state.addedGames.length>0 && 
-            <div className="add-all-button-div">
-            <Button>Add all</Button>
-            </div>}
+                {this.renderSearchBar(mobile)}
+                {this.renderGameCards()}
+                {this.renderPagination()}
             </Grid.Column>
             </Grid>
         </React.Fragment>
