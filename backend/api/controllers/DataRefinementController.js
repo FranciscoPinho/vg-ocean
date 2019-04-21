@@ -32,6 +32,7 @@ let hltb_handler = (result,name) => {
                 if (err) 
                     console.log(err)
                 console.log("changed "+name)
+            
             }) 
         }
     }
@@ -91,7 +92,7 @@ exports.reThumbImageFromGameID = async(req,res) => {
             return res.status(500).send('Invalid platformID')
         }
         let path=process.env.PUBLIC_DIR+'/images/'+plat+'/'+gameID+'/'
-        await imageUtils.thumbImage(path,55,80)
+        await imageUtils.thumbImage(path,req.params.width,req.params.height)
         return res.status(200).send('success')
     }   
     catch(err){

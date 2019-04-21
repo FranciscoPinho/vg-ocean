@@ -5,7 +5,7 @@ exports.getGameFromPlatform = (req,res) => {
     pool.getConnection((err,connection)=>{
         if (err) 
             return res.status(500).json({"error":"Connection to database failed, try again"})
-        pool.query("SELECT gameplatform.id,title,cover_platform_uri FROM `game` LEFT JOIN gameplatform on gameID=game.id WHERE platformID=? ORDER BY game.title LIMIT ?,30",[req.params.platformID,parseInt(req.params.offset)],(err, results) => {
+        pool.query("SELECT gameplatform.id,title,cover_platform_uri  FROM `game` LEFT JOIN gameplatform on gameID=game.id WHERE platformID=? ORDER BY game.title LIMIT ?,30",[req.params.platformID,parseInt(req.params.offset)],(err, results) => {
             if (err) {
                 connection.release()
                 console.log(err)
@@ -25,7 +25,6 @@ exports.getGameFromPlatform = (req,res) => {
     })
     
 }
-
 //second order by needs to be replaced by number of people who have game in their list
 exports.getGameFromPlatformWithSearchQuery = (req,res) => {
     pool.getConnection((err,connection)=>{

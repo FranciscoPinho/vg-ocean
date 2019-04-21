@@ -10,17 +10,10 @@
     opacity:0.2;
     position: fixed;
 }
-.table-games{
-    color:#EFEFD9!important;
-    background-color:transparent!important;
-    border-radius:3px !important; 
-    border-color: lightgrey!important;
-    margin:0 !important;
-}
 .visible.transition{
     display:table-row!important;
 }
-.segment-table{
+.segment-search{
     width:100%;
     padding-left:0px !important;
     padding-right:0px !important;
@@ -148,7 +141,7 @@
     height: 100%;
     width: 0;
     position: absolute;
-    z-index: 100;
+    z-index: 1;
     top: 50px;
     left: 0;
     background-color: #00102A;

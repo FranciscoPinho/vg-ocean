@@ -13,7 +13,7 @@ module.exports = function(app) {
     .get(controller.createThumbsFromImages)
   app.route('/image/thumbs/general/:platformID')
     .get(controller.createThumbsFromImagesGeneral)
-  app.route('/image/thumbs/:platformID/:gameID')
+  app.route('/image/thumbs/:platformID/:gameID/:width/:height')
     .get(controller.reThumbImageFromGameID)
   app.route('/image/redownload/:platformID/:gameID')
     .get(controller.redownloadImageFromGameID)

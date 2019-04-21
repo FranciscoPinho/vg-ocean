@@ -4,7 +4,8 @@ import { server_url } from "../..";
 
 class OverlayTitleCell extends Component {
     state={
-        visible:false
+        visible:false,
+        clickable:true
     }
     
     hoverBegin = () => {
@@ -18,7 +19,16 @@ class OverlayTitleCell extends Component {
             visible:false
         })
     }
-    
+
+    processClick = () => {
+        if(this.state.clickable){
+            if(this.props.clickHandler()!==-1)
+                this.setState({
+                    clickable:false
+                })
+        }      
+    }
+
     segmentStyle = () => {
         return {
             display:"flex",
@@ -38,7 +48,7 @@ class OverlayTitleCell extends Component {
         
     render() {
         return( 
-                <Table.Cell style={{cursor:this.state.visible ? "pointer" : "default"}} onClick={this.props.clickHandler} onMouseOver={this.hoverBegin} onMouseLeave={this.hoverEnd} width={16} singleLine className="inline-flex-centered overflow-x-scroll">
+                <Table.Cell style={{cursor:this.state.visible ? "pointer" : "default"}} onClick={this.processClick} onMouseOver={this.hoverBegin} onMouseLeave={this.hoverEnd} width={16} singleLine className="inline-flex-centered overflow-x-scroll">
                     <div style={{position:"relative",display:"inline-flex"}} >
                     {this.props.imageURL && <Image  className="table-game-thumb" style={{opacity:this.state.visible ? 0.5:1,height:this.props.imageHeight}} src={server_url+this.props.imageURL} alt="cover art"/>}
                     <Segment className="" style={this.segmentStyle()}><Icon name="plus"/></Segment>
