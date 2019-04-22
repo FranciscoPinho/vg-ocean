@@ -408,7 +408,7 @@ class Addplus extends Component {
 
     renderGameCards = () => {
         return (
-        <Card.Group centered stackable itemsPerRow={6}>
+        <Card.Group centered itemsPerRow={this.mobileOrPortraitTablet()?2:6}>
             {this.state.tableGames.map((game)=>{
                 let imageURL = this.processImageURL(game);
                 let activeConsole = this.state.activeConsole.name;
