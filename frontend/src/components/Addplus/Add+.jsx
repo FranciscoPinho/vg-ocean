@@ -417,6 +417,7 @@ class Addplus extends Component {
                     <GameCardAdd
                     platformCardWidth={this.state.activeConsole.width} 
                     platformCardHeight={this.state.activeConsole.height}
+                    mobile={this.mobileOrPortraitTablet()}
                     imageURL={imageURL} 
                     platform={this.state.lastFetchType==="console" ? activeConsole : game.platform} 
                     title={game.title} addClick={()=>this.addGame(game)} 

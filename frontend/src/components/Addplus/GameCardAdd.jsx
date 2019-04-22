@@ -57,16 +57,16 @@ class GameCardAdd extends Component {
             left:0, 
             bottom:0,
             right:0,
-            width:this.props.platformCardWidth*2,
-            height:this.props.platformCardHeight*2
+            width:this.props.mobile?this.props.platformCardWidth*1.5:this.props.platformCardWidth*2,
+            height:this.props.mobile?this.props.platformCardHeight*1.5:this.props.platformCardHeight*2,
         }
     }
 
     cardStyle = () => {
        
         return {
-            width:this.props.platformCardWidth*2,
-            height:this.props.platformCardHeight*2,
+            width:this.props.mobile?this.props.platformCardWidth*1.5:this.props.platformCardWidth*2,
+            height:this.props.mobile?this.props.platformCardHeight*1.5:this.props.platformCardHeight*2,
             background:"transparent"
         }
     }
@@ -74,7 +74,8 @@ class GameCardAdd extends Component {
     cardInside = () => {
         return {
             zIndex:2,
-            color:"#fff"
+            color:"#fff",
+            fontSize:this.props.mobile?"0.8rem":"1rem"
         }
     }
     render() {
@@ -88,12 +89,10 @@ class GameCardAdd extends Component {
                 <Card.Meta style={this.cardInside()}>
                     {this.props.platform}
                 </Card.Meta>
-                }
-                {/*<Card.Description></Card.Description>*/}
-                
+                }        
                 </Card.Content>
                 <Card.Content style={this.cardInside()} extra className="pagination-container" >
-                <Button >Add</Button>
+                <Button>Add</Button>
                 </Card.Content>
                 <div style={this.backgroundCardStyle()}></div>
             </Card>
